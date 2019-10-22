@@ -1,0 +1,132 @@
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\roslyn\csc.exe
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\roslyn\Microsoft.Build.Tasks.CodeAnalysis.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\roslyn\Microsoft.CodeAnalysis.CSharp.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\roslyn\Microsoft.CodeAnalysis.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\roslyn\Microsoft.CodeAnalysis.VisualBasic.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\roslyn\Microsoft.CSharp.Core.targets
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\roslyn\Microsoft.VisualBasic.Core.targets
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\roslyn\System.Collections.Immutable.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\roslyn\System.Reflection.Metadata.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\roslyn\vbc.exe
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\roslyn\VBCSCompiler.exe
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\roslyn\VBCSCompiler.exe.config
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\MVC_League.dll.config
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\MVC_League.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\MVC_League.pdb
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\Antlr3.Runtime.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\EntityFramework.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\EntityFramework.SqlServer.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\Microsoft.Web.Infrastructure.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\Newtonsoft.Json.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\System.Web.Helpers.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\System.Web.Mvc.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\System.Web.Optimization.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\System.Web.Razor.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\System.Web.WebPages.Deployment.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\System.Web.WebPages.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\System.Web.WebPages.Razor.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\WebGrease.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\EntityFramework.xml
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\EntityFramework.SqlServer.xml
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\System.Web.Helpers.xml
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\System.Web.Mvc.xml
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\System.Web.Optimization.xml
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\System.Web.Razor.xml
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\System.Web.WebPages.xml
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\System.Web.WebPages.Deployment.xml
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\System.Web.WebPages.Razor.xml
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\Antlr3.Runtime.pdb
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\bin\Newtonsoft.Json.xml
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\obj\Debug\MVC_League.dll
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\obj\Debug\MVC_League.pdb
+E:\Projects Visual Studio 2015\MVC_League\MVC_League\obj\Debug\MVC_League.csprojResolveAssemblyReference.cache
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\roslyn\csc.exe
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\roslyn\Microsoft.Build.Tasks.CodeAnalysis.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\roslyn\Microsoft.CodeAnalysis.CSharp.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\roslyn\Microsoft.CodeAnalysis.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\roslyn\Microsoft.CodeAnalysis.VisualBasic.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\roslyn\Microsoft.CSharp.Core.targets
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\roslyn\Microsoft.VisualBasic.Core.targets
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\roslyn\System.Collections.Immutable.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\roslyn\System.Reflection.Metadata.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\roslyn\vbc.exe
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\roslyn\VBCSCompiler.exe
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\roslyn\VBCSCompiler.exe.config
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\MVC_League.dll.config
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\MVC_League.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\MVC_League.pdb
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\Antlr3.Runtime.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\EntityFramework.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\EntityFramework.SqlServer.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\Microsoft.Web.Infrastructure.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\Newtonsoft.Json.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\System.Web.Helpers.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\System.Web.Mvc.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\System.Web.Optimization.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\System.Web.Razor.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\System.Web.WebPages.Deployment.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\System.Web.WebPages.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\System.Web.WebPages.Razor.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\WebGrease.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\EntityFramework.xml
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\EntityFramework.SqlServer.xml
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\System.Web.Helpers.xml
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\System.Web.Mvc.xml
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\System.Web.Optimization.xml
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\System.Web.Razor.xml
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\System.Web.WebPages.xml
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\System.Web.WebPages.Deployment.xml
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\System.Web.WebPages.Razor.xml
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\Antlr3.Runtime.pdb
+D:\Proyectos C# NET\MVC_League\MVC_League\bin\Newtonsoft.Json.xml
+D:\Proyectos C# NET\MVC_League\MVC_League\obj\Debug\MVC_League.csprojResolveAssemblyReference.cache
+D:\Proyectos C# NET\MVC_League\MVC_League\obj\Debug\MVC_League.dll
+D:\Proyectos C# NET\MVC_League\MVC_League\obj\Debug\MVC_League.pdb
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\roslyn\csc.exe
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\roslyn\Microsoft.Build.Tasks.CodeAnalysis.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\roslyn\Microsoft.CodeAnalysis.CSharp.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\roslyn\Microsoft.CodeAnalysis.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\roslyn\Microsoft.CodeAnalysis.VisualBasic.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\roslyn\Microsoft.CSharp.Core.targets
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\roslyn\Microsoft.VisualBasic.Core.targets
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\roslyn\System.Collections.Immutable.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\roslyn\System.Reflection.Metadata.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\roslyn\vbc.exe
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\roslyn\VBCSCompiler.exe
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\roslyn\VBCSCompiler.exe.config
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\MVC_League.dll.config
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\MVC_League.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\MVC_League.pdb
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\Antlr3.Runtime.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\EntityFramework.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\EntityFramework.SqlServer.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\Microsoft.Web.Infrastructure.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\Newtonsoft.Json.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\System.Web.Helpers.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\System.Web.Mvc.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\System.Web.Optimization.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\System.Web.Razor.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\System.Web.WebPages.Deployment.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\System.Web.WebPages.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\System.Web.WebPages.Razor.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\WebGrease.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\EntityFramework.xml
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\EntityFramework.SqlServer.xml
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\System.Web.Helpers.xml
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\System.Web.Mvc.xml
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\System.Web.Optimization.xml
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\System.Web.Razor.xml
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\System.Web.WebPages.xml
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\System.Web.WebPages.Deployment.xml
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\System.Web.WebPages.Razor.xml
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\Antlr3.Runtime.pdb
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\bin\Newtonsoft.Json.xml
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\obj\Debug\MVC_League.csprojResolveAssemblyReference.cache
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\obj\Debug\MVC_League.dll
+E:\LIGA COLOMBIANA\MVC_League\MVC_League\obj\Debug\MVC_League.pdb

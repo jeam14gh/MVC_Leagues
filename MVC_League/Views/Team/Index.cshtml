@@ -1,0 +1,196 @@
+﻿@model IEnumerable<MVC_League.Entities.Team>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var leagues = ViewBag.Leagues as List<MVC_League.Entities.League>;
+}
+
+<div class="row">
+    <div class="col-lg-4 col-lg-offset-4 text-center">
+        <h1></h1>
+    </div>
+    <div class="col-lg-4 col-lg-offset-4" id="tblTeams">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="label-default">
+                    <tr>
+                        <th colspan="3" class="text-right">
+                            <button type="button" data-toggle="tooltip" title="Agregar" data-action="add" onclick="fnAdmin(this)">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.LeagueId)
+                        </th>
+                        <th class="hidden">
+                            LeagueId
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td id="@item.Id">
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td id="@item.LeagueId">
+                                @{
+                                    var league = leagues.FirstOrDefault(f => f.Id == item.LeagueId);
+                                }
+                                @Html.DisplayFor(modelItem => league.Name)
+                            </td>
+                            <td class="text-right">
+                                <button type="button" data-toggle="tooltip" title="Editar" data-leagueId=@item.LeagueId data-teamId=@item.Id data-action="update" onclick="fnAdmin(this)">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-6 col-lg-offset-3 hidden" id="divAdminTeam">
+        <div id="title" class="col-sm-12">
+
+        </div>
+        <div class="form-inline row">
+            <div class="form-group col-sm-5">
+                <input type="text" id="txtTeam" class="form-control" />
+            </div>
+            <div class="form-group col-sm-5">                
+                <div class="col-md-10">
+                    @Html.DropDownList("ddlLeagues", new SelectList(leagues,"Id","Name"), new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group col-sm-1">
+                <button type="button" data-toggle="tooltip" title="Guardar" class="btn btn-success" onclick="fnSaveTeam(this)">
+                    <i class="glyphicon glyphicon-floppy-disk"></i>
+                </button>
+            </div>
+            <div class="form-group col-sm-1">
+                <button type="button" data-toggle="tooltip" title="Cancelar" class="btn btn-danger" onclick="fnCancel()">
+                    <i class="glyphicon glyphicon-remove"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section applicationScripts {
+    <script type="text/javascript">
+        var
+            _action = null;
+
+        function fnAdmin(e) {
+            var
+                teamId = e.dataset["teamid"],
+                name = $("td#" + teamId).text().trim(),
+                leagueId = e.dataset["leagueid"];
+
+            _action = $(e).data("action");
+
+            $("#tblTeams").addClass("hidden");
+            $("#divAdminTeam").removeClass("hidden");
+
+            $("div#title").children().remove();
+            if (_action == "add") {
+                $("#ddlLeagues").prop("disabled", false)
+                $("div#title").append("<h1>Agregar Equipo</h1>");
+            }
+            else if (_action == "update") {
+                $("div#title").append("<h1>Editar Equipo</h1>");
+                $("#tblTeams").addClass("hidden");
+                $("#txtTeam").val(name);
+                $("#ddlLeagues").prop("disabled", true)
+                $("#ddlLeagues option[value='" + leagueId + "']").prop('selected', true)
+                $("#txtTeam").attr("data-teamid", teamId);
+            }
+
+        }
+
+        function fnCancel() {
+            $("#tblTeams").removeClass("hidden");
+            $("#divAdminTeam").addClass("hidden");
+            $("#txtTeam").val('');
+        }
+
+        function fnSaveTeam(e) {
+            var
+                name = $("#txtTeam").val(),
+                leagueId= $("#ddlLeagues").val();
+
+            if (!name) {
+                alert("Ingrese un nombre por favor!")
+                return;
+            }
+
+            if (_action == "add") {
+
+                $.ajax({
+                    url: "Create",
+                    method: "POST",
+                    data: JSON.stringify({ team: { Name: name, LeagueId: leagueId } }),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (response) {
+                        var league = _leagues.find(f=>f.Id == response.LeagueId);
+                        var tr = "<tr>"+
+                                    "<td id='" + response.Id + "'>" +
+                                        response.Name +
+                                    "</td>" +
+                                    "<td id='" + response.LeagueId + "'>" +
+                                        league.Name +
+                                    "</td>" +
+                                    "<td class='text-right'>"+
+                                        "<button type='button' data-toggle='tooltip' title='Editar' data-leagueId='" + response.LeagueId + "' data-teamId='" + response.Id + "' data-action='update' onclick='fnAdmin(this)'>" +
+                                            "<span class='glyphicon glyphicon-pencil'></span>"+
+                                        "</button>"+
+                                    "</td>"+
+                                "</tr>";
+                        $("#tblTeams tbody").append(tr);
+                        fnCancel();
+                        _teams.push(response);
+                        alert("Liga creada correctamente!")
+                    },
+                    error: function (jqXHR, textStatus) {
+                        var err = textStatus + ", " + jqXHR;
+                        alert("Error al generar el archivo. " + err);
+                    }
+                });
+            }
+            else if (_action == "update") {
+                var
+                    id = $("#txtTeam").attr("data-teamid");
+
+                $.ajax({
+                    url: "Edit",
+                    method: "POST",
+                    data: JSON.stringify({ team: { Name: name, Id: id, LeagueId: leagueId } }),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (response) {
+                        var team = _teams.find(f=>f.Id == id);
+                        if (team !== undefined) {
+                            team.Name = name;
+                        }
+
+                        $("td#" + id).text(name);
+                        fnCancel();
+                        alert("Liga actualizada correctamente!")
+                    },
+                    error: function (jqXHR, textStatus) {
+                        var err = textStatus + ", " + jqXHR;
+                        alert("Error al generar el archivo. " + err);
+                    }
+                });
+            }
+        }
+    </script>
+}
