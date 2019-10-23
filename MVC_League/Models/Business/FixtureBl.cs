@@ -30,7 +30,12 @@ namespace MVC_League.Models.Business
 
         public Fixture Add(Fixture fixture)
         {
-           return _fixtureData.Add(fixture);
+            var _fixture = _fixtureData.GetByNFixture(fixture.NFixture);
+            if (_fixture != null)
+            {
+                return _fixture;
+            }
+            return _fixtureData.Add(fixture);
         }
 
         public List<Fixture> GetByNFixtureAndSeason(Dictionary<string, int> dict)

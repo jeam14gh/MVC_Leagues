@@ -33,6 +33,11 @@ namespace MVC_League.Models.Data
 
         }
 
+        public Fixture GetByNFixture(int nFixture)
+        {
+            return db.Fixtures.FirstOrDefault(f => f.NFixture == nFixture);
+        }
+
         public List<Positions> GetPositionsByLeagueId(int id)
         {
             return db.Positions.Where(w => w.LeagueId == id).OrderBy(o => o.Pos).ToList();
