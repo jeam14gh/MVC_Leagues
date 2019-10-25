@@ -659,7 +659,9 @@
 
                     //fnCreateCSVFile();
                     console.log(_textCSV);
-                    console.log(_positionsCache);
+                    var nextPrediction = fnGenerateNextPrediction(_positionsCache, teams);
+                    console.log(nextPrediction);
+
                     _textCSV = "";
                     _positionsCache = [];
                     _positionsByFixture = [];
@@ -875,6 +877,19 @@
                 }
             });
         }
+
+        function fnGenerateNextPrediction(positions, teams) {
+            var text = "";
+            positions.map(t=> {
+                var team = teams.find(f=>f.Id == t.TeamId);
+
+                text += team.Name + "," + t["LJ"] + "," + t["LG"] + "," + t["LE"] + "," + t["LP"] + "," + t["LGF"] + "," + t["LGC"] + "," + t["LDG"] + "," + t["LPts"] +
+                                "," + t["VJ"] + "," + t["VG"] + "," + t["VE"] + "," + t["VP"] + "," + t["VGF"] + "," + t["VGC"] + "," + t["VDG"] + "," + t["VPts"] +
+                                "," + t["TJ"] + "," + t["TG"] + "," + t["TE"] + "," + t["TP"] + "," + t["TGF"] + "," + t["TGC"] + "," + t["TDG"] + "," + t["TPts"] + "," + t["Pos"] + ",\n";
+            });
+            return text;
+        }
+
     </script>
 }
 
