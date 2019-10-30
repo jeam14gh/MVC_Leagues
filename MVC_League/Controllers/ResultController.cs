@@ -159,5 +159,12 @@ namespace MVC_League.Controllers
             ViewBag.LeaguesWithTeams = _leagueBl.GetAll();
             return View();
         }
+
+        [HttpPost]
+        public JsonResult GetNextFixture(Fixture fixture)
+        {
+            var data = _matchBl.GetByNFixture(fixture);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
     }
 }

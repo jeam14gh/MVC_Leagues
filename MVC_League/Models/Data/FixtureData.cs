@@ -33,9 +33,9 @@ namespace MVC_League.Models.Data
 
         }
 
-        public Fixture GetByNFixture(int nFixture)
+        public Fixture GetByNFixture(Fixture fixture)
         {
-            return db.Fixtures.FirstOrDefault(f => f.NFixture == nFixture);
+            return db.Fixtures.FirstOrDefault(f => f.NFixture == fixture.NFixture && f.Season == fixture.Season && f.LeagueId == fixture.LeagueId);
         }
 
         public List<Positions> GetPositionsByLeagueId(int id)

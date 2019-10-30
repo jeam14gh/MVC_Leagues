@@ -30,7 +30,7 @@ namespace MVC_League.Models.Business
 
         public Fixture Add(Fixture fixture)
         {
-            var _fixture = _fixtureData.GetByNFixture(fixture.NFixture);
+            var _fixture = _fixtureData.GetByNFixture(fixture);
             if (_fixture != null)
             {
                 return _fixture;
@@ -63,6 +63,12 @@ namespace MVC_League.Models.Business
             }
 
             return fixtures;
+        }
+
+        public Fixture GetByNFixture(Fixture fixture)
+        {
+            var _fixture = _fixtureData.GetByNFixture(fixture);
+            return _fixture;
         }
     }
 }
