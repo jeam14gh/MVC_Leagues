@@ -104,6 +104,7 @@ namespace MVC_League.Controllers
                     fs.Write(info, 0, info.Length);
                 }
 
+
                 // Open the stream and read it back.
                 //using (StreamReader sr = System.IO.File.OpenText(path))
                 //{
