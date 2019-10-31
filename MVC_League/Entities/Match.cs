@@ -24,5 +24,7 @@ namespace MVC_League.Entities
         public int GoalsVisitor { get; set; }
         [ForeignKey("FixtureId")]
         public Fixture Fixture { get; set; }
+        [System.ComponentModel.DefaultValue(true)]
+        public bool Played { get; set; }
     }
 }

@@ -167,5 +167,20 @@ namespace MVC_League.Controllers
             var data = _matchBl.GetByNFixture(fixture);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public ActionResult AddNextFixture(Fixture fixture, List<Match> matches)
+        {
+            try
+            {
+                var _fixture = _fixtureBl.Add(fixture);
+                _matchBl.AddMany(_fixture.Id, matches);
+                return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest, Error.Message);
+            }
+        }
     }
 }

@@ -102,6 +102,9 @@
                 <button style="margin-left:10px" type="button" id="btnGenerateTable" data-toggle="tooltip" title="Actualizar Tabla de Posiciones" class="btn btn-success btn-sm navbar-right" onclick="fnGenerateTable()">
                     <i class="glyphicon glyphicon-refresh"></i>  <i class="glyphicon glyphicon-list-alt"></i>
                 </button>
+                <button style="margin-left:10px" type="button" id="btnSaveJustFixture" class="btn btn-success btn-sm navbar-right" onclick="fnAddNextFixtureOnly()">
+                    Guardar como fecha próxima
+                </button>
             </div>
             <div class="col-md-12 table-responsive">
                 <table id="tableResults" class="table table-bordered table-hover">
@@ -383,7 +386,8 @@
                         TeamIdLocal: teamIdLocal,
                         GoalsLocal: parseInt(resultLocal),
                         TeamIdVisitor: teamIdVisitor,
-                        GoalsVisitor: parseInt(resultVisitor)
+                        GoalsVisitor: parseInt(resultVisitor),
+                        Played: true
                     });
 
                     fnShowOrHideItem(teamIdLocal, teamIdVisitor, "addClass");
@@ -992,6 +996,51 @@
             else {
                 alert("Los campos Temporada, Liga y Fecha deben estar llenos para obtener las fechas!")
             }
+        }
+
+        function fnAddNextFixtureOnly() {
+            var
+                season = $('#season').val(),
+                nFixture = $('#nFixture').val(),
+                leagueId = $('#ddlLeague').val();
+
+            if (season == "" || nFixture == "" || leagueId == "") {
+                alert("Los campos Temporada, Liga y Fecha deben estar llenos para guardar próxima fecha!")
+                return;
+            }
+
+            if (_nextFixture == nFixture) {
+                alert("Fecha " + nFixture + " ya ha sido ingresada!")
+                return;
+            }
+
+            _fixture = {
+                NFixture: nFixture,
+                Season: season,
+                LeagueId: leagueId
+            };
+
+            // Setea todos los partidos para indicar que no se han jugado
+            _matches.map(m=> {
+                m.Played = false;
+            });
+
+            $.ajax({
+                url: "/Result/AddNextFixture",
+                method: "POST",
+                data: JSON.stringify({ fixture: _fixture, matches: _matches }),
+                contentType: "application/json; charset=utf-8",
+                success: function () {
+                    _matches = [];
+                    _fixture = null;
+                    $("#tableResults tbody").children().remove();
+                    alert("Próxima fecha guardada correctamente! ");
+                },
+                error: function (jqXHR, textStatus) {
+                    var err = textStatus + ", " + jqXHR;
+                    alert("Error al guardar la próxima fecha. " + err);
+                }
+            });            
         }
 
     </script>
