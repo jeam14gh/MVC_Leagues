@@ -104,6 +104,7 @@ namespace MVC_League.Controllers
                     fs.Write(info, 0, info.Length);
                 }
 
+
                 // Open the stream and read it back.
                 //using (StreamReader sr = System.IO.File.OpenText(path))
                 //{
@@ -158,6 +159,28 @@ namespace MVC_League.Controllers
         {
             ViewBag.LeaguesWithTeams = _leagueBl.GetAll();
             return View();
+        }
+
+        [HttpPost]
+        public JsonResult GetNextFixture(Fixture fixture)
+        {
+            var data = _matchBl.GetByNFixture(fixture);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult AddNextFixture(Fixture fixture, List<Match> matches)
+        {
+            try
+            {
+                var _fixture = _fixtureBl.Add(fixture);
+                _matchBl.AddMany(_fixture.Id, matches);
+                return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest, Error.Message);
+            }
         }
     }
 }

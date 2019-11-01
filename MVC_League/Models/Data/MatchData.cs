@@ -20,9 +20,10 @@ namespace MVC_League.Models.Data
             db.SaveChanges();
         }
 
-        public List<Match> GetById(int id)
+        // Obtiene todas las fechas por el numero de la fecha
+        public List<Match> GetById(int fixtureId)
         {
-            return db.Matches.Where(w => w.FixtureId == id).ToList();
+            return db.Matches.Where(w => w.FixtureId == fixtureId).ToList();
         }
     }
 }

@@ -14,7 +14,7 @@ namespace MVC_League.Migrations
             // PM> update-database, esto indica que permite hacer cambios automaticos en la BD y modifique sus datos. Puede provocar datos corructos
             //AutomaticMigrationDataLossAllowed = true; 
 
-            //PM > update - database -force, esta seria la mejor opcion
+            //PM > Update-database -force, esta seria la mejor opcion para actualizar la estructura en base de datos.
         }
 
         protected override void Seed(MVC_League.Models.Data.ChampionshipContext context)

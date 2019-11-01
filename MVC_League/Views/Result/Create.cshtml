@@ -20,7 +20,8 @@
     //    });
     //}
 
-    var _season = DateTime.Now.Year + "2";
+    //var _season = DateTime.Now.Year + "2";
+    var _season = "20192020";
 }
 
 <div class="container-fluid">
@@ -37,9 +38,9 @@
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-sm-2 col-form-label">Liga:</label>                    
-                    <div class="col-sm-8">                        
-                        @Html.DropDownList("ddlLeague",new SelectList(model,"Id","Name"),"Seleccione", new { @class = "form-control", onchange = "OnSelectedItem(this)" })
+                    <label class="col-sm-2 col-form-label">Liga:</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownList("ddlLeague", new SelectList(model, "Id", "Name"), "Seleccione", new { @class = "form-control", onchange = "OnSelectedItem(this)" })
                         @*@Html.DropDownList("ddlLeague",
                             (IEnumerable<SelectListItem>)leagues,
                             new { @class = "form-control", onchange = "OnSelectedItem(this)" })*@
@@ -50,7 +51,12 @@
                     <div class="col-sm-8">
                         <input type="number" class="form-control" id="nFixture" />
                     </div>
-                </div>                
+                    <div class="col-sm-2">
+                        <button type="button" id="btnLoadFixture" class="btn btn-success" onclick="fnLoadFixture()">
+                            <i class="glyphicon glyphicon-upload"></i> Cargar fecha
+                        </button>
+                    </div>
+                </div>
             </form>
             <div class="row hidden" id="divAdminResult">
                 <div class="col-sm-3">
@@ -64,13 +70,13 @@
                 <div class="col-sm-2">
                     <div class="form-group">
                         <label></label>
-                        <input type="number" min="0" max="10" class="form-control" id="resultLocal" value="0"/>
+                        <input type="number" min="0" max="10" class="form-control" id="resultLocal" value="0" />
                     </div>
                 </div>
                 <div class="col-sm-2">
                     <div class="form-group">
                         <label></label>
-                        <input type="number" min="0" max="10" class="form-control" id="resultVisitor" value="0"/>
+                        <input type="number" min="0" max="10" class="form-control" id="resultVisitor" value="0" />
                     </div>
                 </div>
                 <div class="col-sm-3">
@@ -96,6 +102,9 @@
                 <button style="margin-left:10px" type="button" id="btnGenerateTable" data-toggle="tooltip" title="Actualizar Tabla de Posiciones" class="btn btn-success btn-sm navbar-right" onclick="fnGenerateTable()">
                     <i class="glyphicon glyphicon-refresh"></i>  <i class="glyphicon glyphicon-list-alt"></i>
                 </button>
+                <button style="margin-left:10px" type="button" id="btnAddNextFixtureOnly" class="btn btn-success btn-sm navbar-right" onclick="fnAddNextFixtureOnly()">
+                    Guardar como fecha próxima
+                </button>
             </div>
             <div class="col-md-12 table-responsive">
                 <table id="tableResults" class="table table-bordered table-hover">
@@ -111,9 +120,7 @@
                             <th>  </th>
                         </tr>
                     </thead>
-                    <tbody>
-
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
@@ -122,15 +129,15 @@
         <div class="col-lg-12 nav navbar-btn">
             <button style="margin-left:10px" type="button" id="btnSaveTable" data-toggle="tooltip" title="Guadar Tabla de Posiciones" class="btn btn-success btn-sm navbar-right hidden" onclick="fnSaveTable(this)">
                 <i class="glyphicon glyphicon-floppy-disk"></i>
-            </button>  
-            <button style="margin-left:10px" type="button" data-toggle="modal" title="Generar CSV" class="btn btn-success btn-sm navbar-right" data-target="#requestFixtures">
-                <i class="glyphicon glyphicon-file"></i>
+            </button>
+            <button style="margin-left:10px" type="button" data-toggle="modal" class="btn btn-success btn-sm navbar-right" data-target="#requestFixtures">
+                <i class="glyphicon glyphicon-file"></i> Generar CSV
             </button>
         </div>
         <div class="col-lg-12">
             <div class="table-responsive">
                 <table id="tblPositions" class="table table-bordered table-hover">
-                    <thead class="label-default">                        
+                    <thead class="label-default">
                         <tr>
                             <th colspan="2" class="text-center">  </th>
                             <th colspan="8" class="text-center"> Local </th>
@@ -172,14 +179,12 @@
                             <th class="text-center"> Pts. </th>
                         </tr>
                     </thead>
-                    <tbody>
-                        
-                    </tbody>
+                    <tbody></tbody>
                     @*<tfoot>
-                        <tr>
-                            <td colspan="26"></td>
-                        </tr>
-                    </tfoot>*@
+                            <tr>
+                                <td colspan="26"></td>
+                            </tr>
+                        </tfoot>*@
                 </table>
             </div>
         </div>
@@ -187,7 +192,7 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="requestFixtures" role="dialog" data-backdrop="static" >
+<div class="modal fade" id="requestFixtures" role="dialog" data-backdrop="static">
     <div class="modal-dialog" style="width:50%">
         <!-- Modal content-->
         <div style="border:0px;" class="modal-content">
@@ -240,7 +245,7 @@
         //    var err = textStatus + ", " + error;
         //    alert("Error al obtener todos los equipos. " + err);
         //});
-            
+
         function OnSelectedItem(e) {
             $('#divPositions').removeClass("hidden");
             $("#divPositions tbody").children().remove();
@@ -249,7 +254,7 @@
                 var teams = _teams.filter(f=>f.LeagueId == e.value);
 
                 if (teams.length == 0) {
-                    
+
                     var tr = "<tr>" +
                                 "<th colspan='26' class='text-center'> <b>No existen equipos en esta liga!</b> <a href='/Team/Index'>Ir a Equipos</a> </th>" +
                             "</tr>";
@@ -258,7 +263,7 @@
                     return;
                 }
 
-                $.getJSON("/Home/GetPositionsByLeagueId?id="+ e.value).
+                $.getJSON("/Home/GetPositionsByLeagueId?id=" + e.value).
                 done((data) => {
                     // SI NO EXISTE TABLA DE POSICIONES PARA LA LIGA SELECCIONADA, SETEAMOS UNA POR DEFECTO
                     if (data.length == 0) {
@@ -269,7 +274,7 @@
                                 {
                                     LeagueId: e.value, TeamId: team.Id, LJ: 0, LG: 0, LE: 0, LP: 0, LGF: 0, LGC: 0, LDG: 0, LPts: 0,
                                     VJ: 0, VG: 0, VE: 0, VP: 0, VGF: 0, VGC: 0, VDG: 0, VPts: 0,
-                                    TJ: 0, TG: 0, TE: 0, TP: 0, TGF: 0, TGC: 0, TDG: 0, TPts: 0, Pos:1
+                                    TJ: 0, TG: 0, TE: 0, TP: 0, TGF: 0, TGC: 0, TDG: 0, TPts: 0, Pos: 1
                                 }
                             );
                         })
@@ -320,7 +325,7 @@
                 });
             }
             else {
-                $('#divPositions').addClass("hidden");                
+                $('#divPositions').addClass("hidden");
             }
         };
 
@@ -366,13 +371,13 @@
                                 "<td class='text-right'>" + resultVisitor + "</td>" +
                                 "<td class='text-right'>" + teamNameVisitor + "</td>" +
                                 "<td class='hidden'>" + leagueId + "</td>" +
-                                "<td class='text-center'>"+
-                                    "<button type='button' data-toggle='tooltip' title='Eliminar Registro' class='btn btn-danger btn-sm' teamIdLocal='" + teamIdLocal + "' teamIdVisitor='" + teamIdVisitor + "' onclick='fnDeleteResult(this)'>"+
-                                        "<i class='glyphicon glyphicon-trash'></i>"+
-                                    "</button>"+
+                                "<td class='text-center'>" +
+                                    "<button type='button' data-toggle='tooltip' title='Eliminar Registro' class='btn btn-danger btn-sm' teamIdLocal='" + teamIdLocal + "' teamIdVisitor='" + teamIdVisitor + "' onclick='fnDeleteResult(this)'>" +
+                                        "<i class='glyphicon glyphicon-trash'></i>" +
+                                    "</button>" +
                                 "</td>" +
                             "</tr>"
-                    
+
 
                     $('#tableResults tbody').append(tr);
 
@@ -381,7 +386,8 @@
                         TeamIdLocal: teamIdLocal,
                         GoalsLocal: parseInt(resultLocal),
                         TeamIdVisitor: teamIdVisitor,
-                        GoalsVisitor: parseInt(resultVisitor)
+                        GoalsVisitor: parseInt(resultVisitor),
+                        Played: true
                     });
 
                     fnShowOrHideItem(teamIdLocal, teamIdVisitor, "addClass");
@@ -421,7 +427,7 @@
         }
 
         // OCULTAMOS O MOSTRAMOS LOS EQUIPOS SELECCIONADOS PARA MAYOR AGILIDAD
-        function fnShowOrHideItem(teamIdLocal, teamIdVisitor,cmd) {
+        function fnShowOrHideItem(teamIdLocal, teamIdVisitor, cmd) {
             eval($("#ddlLocal option[value='" + teamIdLocal + "']")[cmd]("hidden"));
             eval($("#ddlVisitor option[value='" + teamIdLocal + "']")[cmd]("hidden"));
             eval($("#ddlLocal option[value='" + teamIdVisitor + "']")[cmd]("hidden"));
@@ -432,6 +438,8 @@
         }
 
         function fnGenerateTable() {
+            var leagueId = $("#ddlLeague").val();
+
             _matches.map(match=> {
                 if (match.GoalsLocal > match.GoalsVisitor) {
                     // Local ganador
@@ -452,8 +460,12 @@
                 }
             });
 
-            // Ordenar la tabla de posiciones por items de desempate
-            _dataPositionsUpdated = OrderByItemsTiebreaker();
+            if (leagueId == "4") {
+                _dataPositionsUpdated = OrderByItemsTiebreakerPremierLeague();
+            } else {
+                _dataPositionsUpdated = OrderByItemsTiebreaker();
+            }
+
             LoadTablePositions(_dataPositionsUpdated);
             $("#btnSaveTable").removeClass("hidden");
             $("#tableResults tbody").children().remove();
@@ -461,7 +473,7 @@
 
         // Agregamos dinamicamente los campos en la tabla de posiciones
         function LoadTablePositions(positions) {
-            // Limpiamos primero la tabla 
+            // Limpiamos primero la tabla
             $('#tblPositions tbody').children().remove();
 
             $.each(positions, (key, item) => {
@@ -498,7 +510,7 @@
                         "</tr>"
 
                 $('#tblPositions tbody').append(tr);
-            });            
+            });
         }
 
         function UpdateTable(teamId, state, resultType, goalsLocal, goalsVisitor) {
@@ -533,7 +545,7 @@
             }
             else {
                 alert("No se encontró el equipo en base de datos para actualizar sus datos!");
-            }        
+            }
         }
 
         function OrderByItemsTiebreaker() {
@@ -564,19 +576,19 @@
                             else if (teamA.TGF > teamB.TGF) { return teamA; }
                             else { return teamB; }
                         }
-                        else if (teamA.TDG > teamB.TDG) { return teamA; }                        
-                        else { return teamB; }                        
+                        else if (teamA.TDG > teamB.TDG) { return teamA; }
+                        else { return teamB; }
                     }
-                    else if (teamA.TPts > teamB.TPts) { return teamA; }                    
+                    else if (teamA.TPts > teamB.TPts) { return teamA; }
                     else { return teamB; }
-                    
+
                 });
 
-                team.Pos = (pos+= 1);
+                team.Pos = (pos += 1);
                 positionActuals.push(team);
                 var index = _positions.findIndex(f=> f.TeamId == team.TeamId);
                 if (index !== (-1)) {
-                    _positions.splice(index, 1); // Eliminamos el item 
+                    _positions.splice(index, 1); // Eliminamos el item
                     p--;
                 } else {
                     alert("No se encontró el indice!")
@@ -586,7 +598,48 @@
             return positionActuals;
 
         }
-        
+
+        // Item de desempate en Premier League
+        function OrderByItemsTiebreakerPremierLeague() {
+            var pos = 0,
+                positionActuals = [];
+
+            for (var p = 0; p < _positions.length; p++) {
+
+                var team = _positions.reduce((teamA, teamB) => {
+                    // PUNTOS SON IGUALES
+                    if (teamA.TPts == teamB.TPts) {
+                        // DIFERENCIA DE GOL SON IGUALES
+                        if (teamA.TDG == teamB.TDG) {
+                            // GOLES A FAVOR SON IGUALES
+                            if (teamA.TGF == teamB.TGF) {
+                                return teamA;
+                            }
+                            else if (teamA.TGF > teamB.TGF) { return teamA; }
+                            else { return teamB; }
+                        }
+                        else if (teamA.TDG > teamB.TDG) { return teamA; }
+                        else { return teamB; }
+                    }
+                    else if (teamA.TPts > teamB.TPts) { return teamA; }
+                    else { return teamB; }
+
+                });
+
+                team.Pos = (pos += 1);
+                positionActuals.push(team);
+                var index = _positions.findIndex(f=> f.TeamId == team.TeamId);
+                if (index !== (-1)) {
+                    _positions.splice(index, 1); // Eliminamos el item
+                    p--;
+                } else {
+                    alert("No se encontró el indice!")
+                }
+            }
+
+            return positionActuals;
+        }
+
         function fnSaveTable(e) {
 
             $.ajax({
@@ -623,7 +676,7 @@
             var fixtureTo = $("#fixtureTo").val(),
                 season = $("#ageSeason").val(),
                 leagueId = $("#ddlLeague").val();
-            
+
             var _dic = {
                 NFixtureTo: fixtureTo,
                 LeagueId: leagueId,
@@ -638,7 +691,7 @@
                 success: function (response) {
                     _leagueId = leagueId;
                     // Generamos la tabla de posicones desde cero
-                    var teams = _teams.filter(f=>f.LeagueId == leagueId);                    
+                    var teams = _teams.filter(f=>f.LeagueId == leagueId);
                     teams.map(team=> {
                         _positionsCache.push(
                             {
@@ -659,7 +712,9 @@
 
                     //fnCreateCSVFile();
                     console.log(_textCSV);
-                    console.log(_positionsCache);
+                    var nextPrediction = fnGenerateNextPrediction(_positionsCache, teams);
+                    console.log(nextPrediction);
+
                     _textCSV = "";
                     _positionsCache = [];
                     _positionsByFixture = [];
@@ -672,8 +727,8 @@
             });
         }
 
-        function fnGetPositionsInitial(nfixture,matches, teams) {
-            
+        function fnGetPositionsInitial(nfixture, matches, teams) {
+
             matches.map(match=> {
                 if (match.GoalsLocal > match.GoalsVisitor) {
                     // Local ganador
@@ -696,7 +751,7 @@
 
             _positionsCache = OrderByItemsTiebreaker2();
             _positionsByFixture.push({
-                NFixture: nfixture, 
+                NFixture: nfixture,
                 Positions: JSON.parse(JSON.stringify(_positionsCache))
             });
 
@@ -778,7 +833,7 @@
                 positionActuals.push(team);
                 var index = _positionsCache.findIndex(f=> f.TeamId == team.TeamId);
                 if (index !== (-1)) {
-                    _positionsCache.splice(index, 1); // Eliminamos el item 
+                    _positionsCache.splice(index, 1); // Eliminamos el item
                     p--;
                 } else {
                     alert("No se encontró el indice!")
@@ -797,7 +852,7 @@
                 return;
             }
 
-            var obj = _positionsByFixture.find(f=>f.NFixture == (nfixture -1) );
+            var obj = _positionsByFixture.find(f=>f.NFixture == (nfixture - 1));
             if (obj !== undefined) {
                 matches.map(fixture=> {
                     var local = obj.Positions.find(f=>f.TeamId == fixture.TeamIdLocal),
@@ -806,7 +861,7 @@
                         teamVisitor = teams.find(f=>f.Id == fixture.TeamIdVisitor);
 
                     if (local && visitor) {
-                        // Nota: Si se hace un split(','),  el index [24] indica la posicion del equpio local y el [49] del visitante                     
+                        // Nota: Si se hace un split(','),  el index [24] indica la posicion del equpio local y el [49] del visitante
                         if (!justOneFixture) {
                             fnGenerateRow(local, visitor, teamLocal.Name, teamVisitor.Name, fixture.GoalsLocal, fixture.GoalsVisitor);
                         }
@@ -822,7 +877,7 @@
 
         }
 
-        function fnGenerateCSVFile(nfixture,matches, teams) {
+        function fnGenerateCSVFile(nfixture, matches, teams) {
             var
                 _nfixture = $("#fixtureTo").val(),
                 justOneFixture = $("#chbJustFixture").is(":checked");
@@ -834,7 +889,7 @@
                     teamVisitor = teams.find(f=>f.Id == fixture.TeamIdVisitor);
 
                 if (local && visitor) {
-                    // Nota: Si se hace un split(','),  el index [24] indica la posicion del equpio local y el [49] del visitante                     
+                    // Nota: Si se hace un split(','),  el index [24] indica la posicion del equpio local y el [49] del visitante
                     if (!justOneFixture) {
                         fnGenerateRow(local, visitor, teamLocal.Name, teamVisitor.Name, fixture.GoalsLocal, fixture.GoalsVisitor);
                     }
@@ -848,7 +903,7 @@
             });
         }
 
-        function fnGenerateRow(local, visitor, localName , visitorName, goalsLocal, goalsVisitor ) {
+        function fnGenerateRow(local, visitor, localName, visitorName, goalsLocal, goalsVisitor) {
             _textCSV += localName + "," + visitorName + "," + local["LJ"] + "," + local["LG"] + "," + local["LE"] + "," + local["LP"] + "," + local["LGF"] + "," + local["LGC"] + "," + local["LDG"] + "," + local["LPts"] +
                             "," + local["VJ"] + "," + local["VG"] + "," + local["VE"] + "," + local["VP"] + "," + local["VGF"] + "," + local["VGC"] + "," + local["VDG"] + "," + local["VPts"] +
                             "," + local["TJ"] + "," + local["TG"] + "," + local["TE"] + "," + local["TP"] + "," + local["TGF"] + "," + local["TGC"] + "," + local["TDG"] + "," + local["TPts"] + "," + local["Pos"] +
@@ -875,6 +930,120 @@
                 }
             });
         }
+
+        function fnGenerateNextPrediction(positions, teams) {
+            var text = "";
+            positions.map(t=> {
+                var team = teams.find(f=>f.Id == t.TeamId);
+
+                text += team.Name + "," + t["LJ"] + "," + t["LG"] + "," + t["LE"] + "," + t["LP"] + "," + t["LGF"] + "," + t["LGC"] + "," + t["LDG"] + "," + t["LPts"] +
+                                "," + t["VJ"] + "," + t["VG"] + "," + t["VE"] + "," + t["VP"] + "," + t["VGF"] + "," + t["VGC"] + "," + t["VDG"] + "," + t["VPts"] +
+                                "," + t["TJ"] + "," + t["TG"] + "," + t["TE"] + "," + t["TP"] + "," + t["TGF"] + "," + t["TGC"] + "," + t["TDG"] + "," + t["TPts"] + "," + t["Pos"] + ",\n";
+            });
+            return text;
+        }
+
+        function fnLoadFixture() {
+            var
+                season = $('#season').val(),
+                nFixture = $('#nFixture').val(),
+                leagueId = $('#ddlLeague').val();
+
+            if (season != "" && nFixture != "" && leagueId != "") {
+
+                _fixture = {
+                    NFixture: nFixture,
+                    Season: season,
+                    LeagueId: leagueId
+                };
+
+                $.ajax({
+                    url: "/Result/GetNextFixture",
+                    method: "POST",
+                    data: JSON.stringify({  fixture: _fixture, }),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (matches) {
+                        matches.map(m=> {
+                            var
+                                x=1,
+                                teamLocal = _teams.find(f=>f.Id == m.TeamIdLocal),
+                                teamVisitor = _teams.find(f=>f.Id == m.TeamIdVisitor);
+
+                            var tr = "<tr>" +
+                                                "<td>" + teamLocal.Name + "</td>" +
+                                                "<td><input type='number' class='form-control' value='0' min='0' max='10'/></td>" +
+                                                "<td class='text-right'><input type='number' class='form-control' value='0' min='0' max='10'/></td>" +
+                                                "<td class='text-right'>" + teamVisitor.Name + "</td>" +
+                                                "<td class='hidden'>" + x + "</td>" +
+                                                "<td class='text-center'>" +
+                                                    "<button type='button' data-toggle='tooltip' title='Eliminar Registro' class='btn btn-danger btn-sm' teamIdLocal='" + teamLocal.Id + "' teamIdVisitor='" + teamVisitor.Id + "' onclick='fnDeleteResult(this)'>" +
+                                                        "<i class='glyphicon glyphicon-trash'></i>" +
+                                                    "</button>" +
+                                                "</td>" +
+                                            "</tr>"
+
+
+                            $('#tableResults tbody').append(tr);
+                        });
+                        $("#btnAddNextFixtureOnly").addClass("hidden");
+                    },
+                    error: function (jqXHR, textStatus) {
+                        var err = textStatus + ", " + jqXHR;
+                        alert("Error al actualizar la tabla de posiciones. " + err);
+                    }
+                });
+
+            }
+            else {
+                alert("Los campos Temporada, Liga y Fecha deben estar llenos para obtener las fechas!")
+            }
+        }
+
+        function fnAddNextFixtureOnly() {
+            var
+                season = $('#season').val(),
+                nFixture = $('#nFixture').val(),
+                leagueId = $('#ddlLeague').val();
+
+            if (season == "" || nFixture == "" || leagueId == "") {
+                alert("Los campos Temporada, Liga y Fecha deben estar llenos para guardar próxima fecha!")
+                return;
+            }
+
+            if (_nextFixture == nFixture) {
+                alert("Fecha " + nFixture + " ya ha sido ingresada!")
+                return;
+            }
+
+            _fixture = {
+                NFixture: nFixture,
+                Season: season,
+                LeagueId: leagueId
+            };
+
+            // Setea todos los partidos para indicar que no se han jugado
+            _matches.map(m=> {
+                m.Played = false;
+            });
+
+            $.ajax({
+                url: "/Result/AddNextFixture",
+                method: "POST",
+                data: JSON.stringify({ fixture: _fixture, matches: _matches }),
+                contentType: "application/json; charset=utf-8",
+                success: function () {
+                    _matches = [];
+                    _fixture = null;                    
+                    $("#tableResults tbody").children().remove();
+                    alert("Próxima fecha guardada correctamente! ");
+                },
+                error: function (jqXHR, textStatus) {
+                    var err = textStatus + ", " + jqXHR;
+                    alert("Error al guardar la próxima fecha. " + err);
+                }
+            });            
+        }
+
     </script>
 }
 
