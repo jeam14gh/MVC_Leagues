@@ -47,7 +47,7 @@ namespace MVC_League.Models.Business
             var fixtures= _fixtureData.GetByLeagueAndSeason(leagueid, season);
             foreach (var f in fixtures)
             {
-                var matches = _matchesData.GetById(f.Id);
+                var matches = _matchesData.GetByFixtureId(f.Id);
                 f.Matches = matches;
             }
             return fixtures.Where(w => w.NFixture <= fixtureto).OrderBy(o=>o.NFixture).ToList();
@@ -58,7 +58,7 @@ namespace MVC_League.Models.Business
             var fixtures= _fixtureData.GetByLeagueAndSeason(fixture.LeagueId, fixture.Season).OrderBy(o => o.NFixture).ToList();
             foreach (var f in fixtures)
             {
-                var matches = _matchesData.GetById(f.Id);
+                var matches = _matchesData.GetByFixtureId(f.Id);
                 f.Matches = matches;
             }
 
@@ -69,6 +69,13 @@ namespace MVC_League.Models.Business
         {
             var _fixture = _fixtureData.GetByNFixture(fixture);
             return _fixture;
+        }
+
+        // Obtiene la ultima fecha por liga
+        public int GetGreaterByLeague(int leagueid, int season)
+        {
+            var currentFixture = _fixtureData.GetGreaterByLeague(leagueid,season);
+            return currentFixture;
         }
     }
 }

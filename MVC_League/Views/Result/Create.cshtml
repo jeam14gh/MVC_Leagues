@@ -48,13 +48,11 @@
                 </div>
                 <div class="form-group row">
                     <label class="col-sm-2 col-form-label">Fecha N°:</label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-7">
                         <input type="number" class="form-control" id="nFixture" />
                     </div>
-                    <div class="col-sm-2">
-                        <button type="button" id="btnLoadFixture" class="btn btn-success" onclick="fnLoadFixture()">
-                            <i class="glyphicon glyphicon-upload"></i> Cargar fecha
-                        </button>
+                    <div class="col-sm-3">
+                        <button type="button" id="btnLoadFixture" class="btn btn-success" onclick="fnLoadFixture()">Cargar fecha</button>
                     </div>
                 </div>
             </form>
@@ -235,7 +233,9 @@
             _positionsCache = [],
             _leagueId = null,
             _textCSV = "",
-            _positionsByFixture = [];
+            _positionsByFixture = [],
+            _lastFixtureRegistered,
+            _fixtureLoaded = false;
 
         //$.getJSON("/Home/GetLeaguesTeams").
         //done((data) => {
@@ -247,6 +247,7 @@
         //});
 
         function OnSelectedItem(e) {
+            var season= $("#season").val();
             $('#divPositions').removeClass("hidden");
             $("#divPositions tbody").children().remove();
             //e.preventDefault();
@@ -263,10 +264,11 @@
                     return;
                 }
 
-                $.getJSON("/Home/GetPositionsByLeagueId?id=" + e.value).
-                done((data) => {
+                $.getJSON("/Home/GetPositionsByLeagueId?id=" + e.value + "&season="+season).
+                done((response) => {
+                    _lastFixtureRegistered = response.CurrentFixture;
                     // SI NO EXISTE TABLA DE POSICIONES PARA LA LIGA SELECCIONADA, SETEAMOS UNA POR DEFECTO
-                    if (data.length == 0) {
+                    if (response.Positions.length == 0) {
                         _positions = [];
                         _nextFixture = 1;
                         teams.map(team=> {
@@ -279,7 +281,7 @@
                             );
                         })
                     } else {
-                        _positions = data;
+                        _positions = response.Positions;
 
                         // INDICA LA PROXIMA FECHA QUE SE VA A JUGAR
                         var lessMatch = [];
@@ -342,6 +344,16 @@
                 teamNameLocal = $('#ddlLocal option[value="' + teamIdLocal + '"]').text(),
                 teamNameVisitor = $('#ddlVisitor option[value="' + teamIdVisitor + '"]').text();
 
+            if (season == "" || nFixture == "" || leagueId == "") {
+                alert("Los campos Temporada, Liga y Fecha deben estar llenos para obtener las fechas!")
+                return;
+            }
+
+            if (_lastFixtureRegistered >= nFixture) {
+                alert("Fecha " + nFixture + " ya fue registrada. Verifique en 'Cargar fecha' si existe!")
+                return;
+            }
+
             if ((teamIdLocal == '0') || (teamIdVisitor == '0') || (!resultVisitor) || (!resultLocal)) {
                 alert("Seleccione equipo local, visitante y resultado entre ellos!")
                 return;
@@ -355,7 +367,10 @@
                         LeagueId: leagueId
                     };
                     $('#tableResults thead').find("th#thInfo").html("<b>Fecha N° " + nFixture + "</b>");
-                    $("#ddlLeague").prop('disabled', true);
+                    //$("#season").prop('disabled', true);
+                    //$("#ddlLeague").prop('disabled', true);
+                    //$("#nFixture").prop('disabled', true);                    
+                    fnDisabled(true);
                     $('#divResults').removeClass("hidden");
                 }
 
@@ -418,7 +433,10 @@
             }
 
             if (_matches.length == 0) {
-                $("#ddlLeague").prop('disabled', false);
+                //$("#season").prop('disabled', false);
+                //$("#ddlLeague").prop('disabled', false);
+                //$("#nFixture").prop('disabled', false);
+                fnDisabled(false);
                 $('#divResults').addClass("hidden");
                 _fixture = null;
             }
@@ -440,23 +458,49 @@
         function fnGenerateTable() {
             var leagueId = $("#ddlLeague").val();
 
+            if (_fixtureLoaded) {
+                _matches = [];
+                $("#tableResults tbody").children('tr').each(function (index, value) {
+                    var
+                        idlocal = $(this).children('td').eq(0).data('idlocal'),
+                        goalslocal = parseInt($(this).children('td').find('input#goalslocal').val()),
+                        goalsvisitor = parseInt($(this).children('td').find('input#goalsvisitor').val()),
+                        idvisitor = $(this).children('td').eq(3).data('idvisitor'),
+                        td = $(this).children('td').eq(4).text().split('/'),
+                        matchId = td[0],
+                        fixtureId = td[1];
+
+                        _matches.push({
+                            FixtureId: fixtureId,
+                            GoalsLocal: goalslocal,
+                            GoalsVisitor: goalsvisitor,
+                            Id: matchId,
+                            Played: true,
+                            TeamIdLocal: idlocal,
+                            TeamIdVisitor: idvisitor
+                        });
+
+                });
+                console.log(_matches);
+            }
+
             _matches.map(match=> {
                 if (match.GoalsLocal > match.GoalsVisitor) {
                     // Local ganador
-                    UpdateTable(match.TeamIdLocal, "L", "G", match.GoalsLocal, match.GoalsVisitor);
+                    fnUpdateTable(match.TeamIdLocal, "L", "G", match.GoalsLocal, match.GoalsVisitor);
                     // Visitante perdedor
-                    UpdateTable(match.TeamIdVisitor, "V", "P", match.GoalsLocal, match.GoalsVisitor);
+                    fnUpdateTable(match.TeamIdVisitor, "V", "P", match.GoalsLocal, match.GoalsVisitor);
                 }
                 else if (match.GoalsVisitor > match.GoalsLocal) {
                     // Local perdedor
-                    UpdateTable(match.TeamIdLocal, "L", "P", match.GoalsLocal, match.GoalsVisitor);
+                    fnUpdateTable(match.TeamIdLocal, "L", "P", match.GoalsLocal, match.GoalsVisitor);
                     // Visitante ganador
-                    UpdateTable(match.TeamIdVisitor, "V", "G", match.GoalsLocal, match.GoalsVisitor);
+                    fnUpdateTable(match.TeamIdVisitor, "V", "G", match.GoalsLocal, match.GoalsVisitor);
                 }
                 else if (match.GoalsLocal == match.GoalsVisitor) {
                     // Equipos empatados
-                    UpdateTable(match.TeamIdLocal, "L", "E", match.GoalsLocal, match.GoalsVisitor);
-                    UpdateTable(match.TeamIdVisitor, "V", "E", match.GoalsLocal, match.GoalsVisitor);
+                    fnUpdateTable(match.TeamIdLocal, "L", "E", match.GoalsLocal, match.GoalsVisitor);
+                    fnUpdateTable(match.TeamIdVisitor, "V", "E", match.GoalsLocal, match.GoalsVisitor);
                 }
             });
 
@@ -513,7 +557,7 @@
             });
         }
 
-        function UpdateTable(teamId, state, resultType, goalsLocal, goalsVisitor) {
+        function fnUpdateTable(teamId, state, resultType, goalsLocal, goalsVisitor) {
             var team = _positions.find(f=> f.TeamId == teamId && f.LeagueId == _fixture.LeagueId);
             if (team) {
 
@@ -653,6 +697,7 @@
                     _fixture = null;
                     _positions = _dataPositionsUpdated;
                     _dataPositionsUpdated = null;
+                    _fixtureLoaded = false;
                     //$("#ddlLeague option[value='0']").attr("selected", true);
                     $("#nFixture").val(_nextFixture);
                     $("#btnSaveTable").addClass("hidden")
@@ -664,7 +709,10 @@
                 }
             });
 
-            $("#ddlLeague").prop('disabled', false);
+            //$("#season").prop('disabled', false);
+            //$("#ddlLeague").prop('disabled', false);
+            //$("#nFixture").prop('disabled', false);
+            fnDisabled(false);
             $("#divResults").addClass('hidden');
             $("#ddlLocal").children("option").removeClass("hidden");
             $("#ddlVisitor").children("option").removeClass("hidden");
@@ -732,20 +780,20 @@
             matches.map(match=> {
                 if (match.GoalsLocal > match.GoalsVisitor) {
                     // Local ganador
-                    UpdateTable2(match.TeamIdLocal, "L", "G", match.GoalsLocal, match.GoalsVisitor);
+                    fnUpdateTable2(match.TeamIdLocal, "L", "G", match.GoalsLocal, match.GoalsVisitor);
                     // Visitante perdedor
-                    UpdateTable2(match.TeamIdVisitor, "V", "P", match.GoalsLocal, match.GoalsVisitor);
+                    fnUpdateTable2(match.TeamIdVisitor, "V", "P", match.GoalsLocal, match.GoalsVisitor);
                 }
                 else if (match.GoalsVisitor > match.GoalsLocal) {
                     // Local perdedor
-                    UpdateTable2(match.TeamIdLocal, "L", "P", match.GoalsLocal, match.GoalsVisitor);
+                    fnUpdateTable2(match.TeamIdLocal, "L", "P", match.GoalsLocal, match.GoalsVisitor);
                     // Visitante ganador
-                    UpdateTable2(match.TeamIdVisitor, "V", "G", match.GoalsLocal, match.GoalsVisitor);
+                    fnUpdateTable2(match.TeamIdVisitor, "V", "G", match.GoalsLocal, match.GoalsVisitor);
                 }
                 else if (match.GoalsLocal == match.GoalsVisitor) {
                     // Equipos empatados
-                    UpdateTable2(match.TeamIdLocal, "L", "E", match.GoalsLocal, match.GoalsVisitor);
-                    UpdateTable2(match.TeamIdVisitor, "V", "E", match.GoalsLocal, match.GoalsVisitor);
+                    fnUpdateTable2(match.TeamIdLocal, "L", "E", match.GoalsLocal, match.GoalsVisitor);
+                    fnUpdateTable2(match.TeamIdVisitor, "V", "E", match.GoalsLocal, match.GoalsVisitor);
                 }
             });
 
@@ -758,7 +806,7 @@
             //fnGenerateCSVFile(nfixture,matches, teams);
         }
 
-        function UpdateTable2(teamId, state, resultType, goalsLocal, goalsVisitor) {
+        function fnUpdateTable2(teamId, state, resultType, goalsLocal, goalsVisitor) {
             var team = _positionsCache.find(f=> f.TeamId == teamId && f.LeagueId == _leagueId);
             if (team) {
 
@@ -944,76 +992,97 @@
         }
 
         function fnLoadFixture() {
-            var
-                season = $('#season').val(),
-                nFixture = $('#nFixture').val(),
-                leagueId = $('#ddlLeague').val();
+            $("#tableResults tbody").children().remove();
+            $("#divResults").addClass("hidden");
+            $("#btnAddNextFixtureOnly").removeClass("hidden");
+            //$("#btnAddResult").removeClass("hidden");
+            
 
-            if (season != "" && nFixture != "" && leagueId != "") {
-
-                _fixture = {
-                    NFixture: nFixture,
-                    Season: season,
-                    LeagueId: leagueId
-                };
-
-                $.ajax({
-                    url: "/Result/GetNextFixture",
-                    method: "POST",
-                    data: JSON.stringify({  fixture: _fixture, }),
-                    contentType: "application/json; charset=utf-8",
-                    success: function (matches) {
-                        matches.map(m=> {
-                            var
-                                x=1,
-                                teamLocal = _teams.find(f=>f.Id == m.TeamIdLocal),
-                                teamVisitor = _teams.find(f=>f.Id == m.TeamIdVisitor);
-
-                            var tr = "<tr>" +
-                                                "<td>" + teamLocal.Name + "</td>" +
-                                                "<td><input type='number' class='form-control' value='0' min='0' max='10'/></td>" +
-                                                "<td class='text-right'><input type='number' class='form-control' value='0' min='0' max='10'/></td>" +
-                                                "<td class='text-right'>" + teamVisitor.Name + "</td>" +
-                                                "<td class='hidden'>" + x + "</td>" +
-                                                "<td class='text-center'>" +
-                                                    "<button type='button' data-toggle='tooltip' title='Eliminar Registro' class='btn btn-danger btn-sm' teamIdLocal='" + teamLocal.Id + "' teamIdVisitor='" + teamVisitor.Id + "' onclick='fnDeleteResult(this)'>" +
-                                                        "<i class='glyphicon glyphicon-trash'></i>" +
-                                                    "</button>" +
-                                                "</td>" +
-                                            "</tr>"
-
-
-                            $('#tableResults tbody').append(tr);
-                        });
-                        $("#btnAddNextFixtureOnly").addClass("hidden");
-                    },
-                    error: function (jqXHR, textStatus) {
-                        var err = textStatus + ", " + jqXHR;
-                        alert("Error al actualizar la tabla de posiciones. " + err);
-                    }
-                });
-
-            }
-            else {
-                alert("Los campos Temporada, Liga y Fecha deben estar llenos para obtener las fechas!")
-            }
-        }
-
-        function fnAddNextFixtureOnly() {
             var
                 season = $('#season').val(),
                 nFixture = $('#nFixture').val(),
                 leagueId = $('#ddlLeague').val();
 
             if (season == "" || nFixture == "" || leagueId == "") {
+                alert("Los campos Temporada, Liga y Fecha deben estar llenos para obtener las fechas!")
+                return;
+            }
+
+            _fixture = {
+                NFixture: nFixture,
+                Season: season,
+                LeagueId: leagueId
+            };
+
+            $.ajax({
+                url: "/Result/GetNextFixture",
+                method: "POST",
+                data: JSON.stringify({  fixture: _fixture, }),
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    _matches = response.filter(f=>f.Played == false);
+                    if (_matches.length == 0) {
+                        alert("Fecha N°" + nFixture + " no tiene partidos registrados ó pendientes!")
+                        return;
+                    }
+                    _fixtureLoaded = true;
+                    $('#tableResults thead').find("th#thInfo").html("<b>Fecha N° " + nFixture + "</b>");
+
+                    _matches.map(m=> {
+                        var
+                            x = 1,
+                            teamLocal = _teams.find(f=>f.Id == m.TeamIdLocal),
+                            teamVisitor = _teams.find(f=>f.Id == m.TeamIdVisitor);
+
+                        var tr = "<tr>" +
+                                            "<td data-idlocal='" + m.TeamIdLocal + "'>" + teamLocal.Name + "</td>" +
+                                            "<td><input type='number' class='form-control' id='goalslocal' value='" + m.GoalsLocal + "' min='0' max='10'/></td>" +
+                                            "<td class='text-right'><input type='number' class='form-control' id='goalsvisitor' value='" + m.GoalsVisitor + "' min='0' max='10'/></td>" +
+                                            "<td class='text-right' data-idvisitor='" + m.TeamIdVisitor + "'>" + teamVisitor.Name + "</td>" +
+                                            "<td class='hidden'>" + m.Id + "/"+ m.FixtureId +"</td>" +
+                                            "<td class='text-center'>" +
+                                                "<button type='button' data-toggle='tooltip' title='Eliminar Registro' class='btn btn-danger btn-sm' teamIdLocal='" + teamLocal.Id + "' teamIdVisitor='" + teamVisitor.Id + "' onclick='fnDeleteResult(this)'>" +
+                                                    "<i class='glyphicon glyphicon-trash'></i>" +
+                                                "</button>" +
+                                            "</td>" +
+                                        "</tr>"
+
+
+                        $('#tableResults tbody').append(tr);                            
+                    });
+                    $("#divResults").removeClass("hidden");
+                    $("#btnAddNextFixtureOnly").addClass("hidden");
+
+                    //$("#btnAddResult").addClass("hidden");
+                },
+                error: function (jqXHR, textStatus) {
+                    var err = textStatus + ", " + jqXHR;
+                    alert("Error al actualizar la tabla de posiciones. " + err);
+                }
+            });
+        }
+
+        function fnAddNextFixtureOnly() {           
+
+            var
+                season = $('#season').val(),
+                nFixture = $('#nFixture').val(),
+                leagueId = $('#ddlLeague').val();
+
+            if (_lastFixtureRegistered == nFixture) {
+                alert("Fecha " + nFixture + " ya está registrada!")
+                return;
+            }
+
+            if (season == "" || nFixture == "" || leagueId == "") {
                 alert("Los campos Temporada, Liga y Fecha deben estar llenos para guardar próxima fecha!")
                 return;
             }
 
-            if (_nextFixture == nFixture) {
-                alert("Fecha " + nFixture + " ya ha sido ingresada!")
-                return;
-            }
+            //if (_nextFixture == nFixture) {
+            //    alert("Fecha " + nFixture + " ya ha sido ingresada!")
+            //    return;
+            //}
 
             _fixture = {
                 NFixture: nFixture,
@@ -1032,8 +1101,10 @@
                 data: JSON.stringify({ fixture: _fixture, matches: _matches }),
                 contentType: "application/json; charset=utf-8",
                 success: function () {
+                    fnDisabled(false);
                     _matches = [];
-                    _fixture = null;                    
+                    _fixture = null;
+                    _lastFixtureRegistered++;
                     $("#tableResults tbody").children().remove();
                     alert("Próxima fecha guardada correctamente! ");
                 },
@@ -1044,6 +1115,39 @@
             });            
         }
 
+        function fnDisabled(value) {
+            $("#season").prop('disabled', value);
+            $("#ddlLeague").prop('disabled', value);
+            $("#nFixture").prop('disabled', value);
+
+            if (value) {
+                $("#btnLoadFixture").addClass("hidden");
+            } else {
+                $("#btnLoadFixture").removeClass("hidden");
+            }
+        }
+
+            //$.ajax({
+            //    url: 'http://api.football-data.org/v2/teams/5/matches?status=FINISHED&limit=1',
+            //    headers: {
+            //        'X-Auth-Token': 'bb2761bad403458489f1f9425d897f16',
+            //        'Access-Control-Allow-Methods': "GET",
+            //        'Access-Control-Allow-Origin': "*",
+            //        'Access-Control-Allow-Headers': "x-auth-token, x-response-control",
+            //        'Content-Length': 0,
+            //        'Content-Type': 'text/plain',
+            //    },
+            //    //method: "GET",
+            //    //contentType: "application/json; charset=utf-8",
+            //    //crossDomain: true,
+            //    success: function (result) {
+            //        // process result
+            //        console.log(result);
+            //    },
+            //    error: function (e) {
+            //        // log error in browser
+            //        console.log(e.message);
+            //    }
+            //});
     </script>
 }
-
