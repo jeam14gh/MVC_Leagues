@@ -70,5 +70,17 @@ namespace MVC_League.Models.Data
                 return new List<Fixture>();
             }
         }
+
+        public int GetGreaterByLeague(int leagueid, int season)
+        {
+            try
+            {
+                return db.Fixtures.Where(f => f.LeagueId == leagueid && f.Season == season).Max(m => m.NFixture);
+            }
+            catch (System.InvalidOperationException)
+            {
+                return -1;
+            }
+        }
     }
 }

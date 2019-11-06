@@ -48,14 +48,13 @@ namespace MVC_League.Controllers
         }
 
         [HttpGet]
-        public JsonResult GetPositionsByLeagueId(int id)
+        public JsonResult GetPositionsByLeagueId(int id, int season)
         {
             var data = _fixtureBl.GetPositionsByLeagueId(id);
-            //if (data.Count == 0)
-            //{
+            var currentFixture = _fixtureBl.GetGreaterByLeague(id, season);
 
-            //}
-            return Json(data, JsonRequestBehavior.AllowGet);
+            return Json(new { CurrentFixture = currentFixture, Positions = data }, JsonRequestBehavior.AllowGet);
+            //return Json(data, JsonRequestBehavior.AllowGet);
         }
     }
 }

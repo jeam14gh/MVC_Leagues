@@ -88,13 +88,15 @@
                 data: JSON.stringify({ fixture: obj }),
                 contentType: "application/json; charset=utf-8",
                 success: function (response) {
+                    $("#divFixtures").children().remove();
                     response.map(fixture=> {
                         CreateResultByFixture(fixture.Matches, fixture.NFixture);
                     })
                 },
                 error: function (jqXHR, textStatus) {
+                    $("#divFixtures").children().remove();
                     var err = textStatus + ", " + jqXHR;
-                    alert("Error al generar el archivo. " + err);
+                    alert("Error al obtener las fechas!" + err);
                 }
             });
 

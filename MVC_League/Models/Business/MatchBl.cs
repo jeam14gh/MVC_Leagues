@@ -33,12 +33,30 @@ namespace MVC_League.Models.Business
             var _fixture = _fixtreBl.GetByNFixture(fixture);
             if (_fixture != null)
             {
-                return _matchData.GetById(_fixture.Id);
+                return _matchData.GetByFixtureId(_fixture.Id);
             }
             else
             {
                 return new List<Match>();
             }
+        }
+
+        /// <summary>
+        /// Agrega los partidos siguentes de una fecha o aplazados
+        /// </summary>
+        public void AddNext(int fixtureId, List<Match> nextMatches)
+        {
+            var matchesSaved = _matchData.GetByFixtureId(fixtureId);
+            foreach (var m in nextMatches)
+            {
+                var match = matchesSaved.FirstOrDefault(f => f.TeamIdLocal == m.TeamIdLocal && f.TeamIdVisitor == m.TeamIdVisitor);
+                if (match == null)
+                {
+                    m.FixtureId = fixtureId;
+                    _matchData.Add(m);
+                }
+            }
+            
         }
     }
 }
