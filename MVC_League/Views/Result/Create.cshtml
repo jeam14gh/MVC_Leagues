@@ -23,7 +23,6 @@
     //var _season = DateTime.Now.Year + "2";
     var _season = "20192020";
 }
-
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-4 col-md-offset-4 text-center">
@@ -155,7 +154,6 @@
                             <th class="text-center"> GC </th>
                             <th class="text-center"> DG </th>
                             <th class="text-center"> Pts. </th>
-
                             @* ::: VISITANTE ::: *@
                             <th class="text-center"> J </th>
                             <th class="text-center"> G </th>
@@ -165,7 +163,6 @@
                             <th class="text-center"> GC </th>
                             <th class="text-center"> DG </th>
                             <th class="text-center"> Pts. </th>
-
                             @* ::: TOTAL ::: *@
                             <th class="text-center"> J </th>
                             <th class="text-center"> G </th>
@@ -188,7 +185,6 @@
         </div>
     </div>
 </div>
-
 <!-- Modal -->
 <div class="modal fade" id="requestFixtures" role="dialog" data-backdrop="static">
     <div class="modal-dialog" style="width:50%">
@@ -223,7 +219,6 @@
         </div>
     </div>
 </div>
-
 @section applicationScripts {
     <script type="text/javascript">
         var
@@ -247,7 +242,7 @@
         //});
 
         function OnSelectedItem(e) {
-            var season= $("#season").val();
+            var season = $("#season").val();
             $('#divPositions').removeClass("hidden");
             $("#divPositions tbody").children().remove();
             //e.preventDefault();
@@ -264,7 +259,7 @@
                     return;
                 }
 
-                $.getJSON("/Home/GetPositionsByLeagueId?id=" + e.value + "&season="+season).
+                $.getJSON("/Home/GetPositionsByLeagueId?id=" + e.value + "&season=" + season).
                 done((response) => {
                     _lastFixtureRegistered = response.CurrentFixture;
                     // SI NO EXISTE TABLA DE POSICIONES PARA LA LIGA SELECCIONADA, SETEAMOS UNA POR DEFECTO
@@ -369,7 +364,7 @@
                     $('#tableResults thead').find("th#thInfo").html("<b>Fecha N° " + nFixture + "</b>");
                     //$("#season").prop('disabled', true);
                     //$("#ddlLeague").prop('disabled', true);
-                    //$("#nFixture").prop('disabled', true);                    
+                    //$("#nFixture").prop('disabled', true);
                     fnDisabled(true);
                     $('#divResults').removeClass("hidden");
                 }
@@ -471,15 +466,15 @@
                         fixtureId = td[1],
                         played = $(this).children('td').eq(5).find('input[type=checkbox]').is(':checked');
 
-                        _matches.push({
-                            FixtureId: fixtureId,
-                            GoalsLocal: goalslocal,
-                            GoalsVisitor: goalsvisitor,
-                            Id: matchId,
-                            Played: played,
-                            TeamIdLocal: idlocal,
-                            TeamIdVisitor: idvisitor
-                        });
+                    _matches.push({
+                        FixtureId: fixtureId,
+                        GoalsLocal: goalslocal,
+                        GoalsVisitor: goalsvisitor,
+                        Id: matchId,
+                        Played: played,
+                        TeamIdLocal: idlocal,
+                        TeamIdVisitor: idvisitor
+                    });
 
                 });
                 console.log(_matches);
@@ -729,8 +724,13 @@
                 season = $("#ageSeason").val(),
                 leagueId = $("#ddlLeague").val();
 
+            if (fixtureTo == '' || season == '') {
+                alert("Temporada y fecha no pueden estar vacios!")
+                return;
+            }
+
             var _dic = {
-                NFixtureTo: fixtureTo,
+                NFixtureTo: parseInt(fixtureTo) + 1,
                 LeagueId: leagueId,
                 Season: season
             };
@@ -743,7 +743,10 @@
                 success: function (response) {
                     _leagueId = leagueId;
                     // Generamos la tabla de posicones desde cero
-                    var teams = _teams.filter(f=>f.LeagueId == leagueId);
+                    var teams = _teams.filter(f=>f.LeagueId == leagueId),
+                        nextFixture = _dic.NFixtureTo,
+                        nextMatches;
+
                     teams.map(team=> {
                         _positionsCache.push(
                             {
@@ -754,8 +757,13 @@
                         );
                     });
 
+
                     response.map(m=> {
-                        fnGetPositionsInitial(m.NFixture, m.Matches, teams);
+                        if (nextFixture > m.NFixture) {
+                            fnGetPositionsInitial(m.NFixture, m.Matches, teams);
+                        } else {
+                            nextMatches = m.Matches.filter(f=> !f.Played);
+                        }
                     });
 
                     response.map(m=> {
@@ -764,7 +772,7 @@
 
                     //fnCreateCSVFile();
                     console.log(_textCSV);
-                    var nextPrediction = fnGenerateNextPrediction(_positionsCache, teams);
+                    var nextPrediction = fnGenerateNextPrediction(_positionsCache, teams, nextMatches);
                     console.log(nextPrediction);
 
                     _textCSV = "";
@@ -782,22 +790,24 @@
         function fnGetPositionsInitial(nfixture, matches, teams) {
 
             matches.map(match=> {
-                if (match.GoalsLocal > match.GoalsVisitor) {
-                    // Local ganador
-                    fnUpdateTable2(match.TeamIdLocal, "L", "G", match.GoalsLocal, match.GoalsVisitor);
-                    // Visitante perdedor
-                    fnUpdateTable2(match.TeamIdVisitor, "V", "P", match.GoalsLocal, match.GoalsVisitor);
-                }
-                else if (match.GoalsVisitor > match.GoalsLocal) {
-                    // Local perdedor
-                    fnUpdateTable2(match.TeamIdLocal, "L", "P", match.GoalsLocal, match.GoalsVisitor);
-                    // Visitante ganador
-                    fnUpdateTable2(match.TeamIdVisitor, "V", "G", match.GoalsLocal, match.GoalsVisitor);
-                }
-                else if (match.GoalsLocal == match.GoalsVisitor) {
-                    // Equipos empatados
-                    fnUpdateTable2(match.TeamIdLocal, "L", "E", match.GoalsLocal, match.GoalsVisitor);
-                    fnUpdateTable2(match.TeamIdVisitor, "V", "E", match.GoalsLocal, match.GoalsVisitor);
+                if (match.Played) {
+                    if (match.GoalsLocal > match.GoalsVisitor) {
+                        // Local ganador
+                        fnUpdateTable2(match.TeamIdLocal, "L", "G", match.GoalsLocal, match.GoalsVisitor);
+                        // Visitante perdedor
+                        fnUpdateTable2(match.TeamIdVisitor, "V", "P", match.GoalsLocal, match.GoalsVisitor);
+                    }
+                    else if (match.GoalsVisitor > match.GoalsLocal) {
+                        // Local perdedor
+                        fnUpdateTable2(match.TeamIdLocal, "L", "P", match.GoalsLocal, match.GoalsVisitor);
+                        // Visitante ganador
+                        fnUpdateTable2(match.TeamIdVisitor, "V", "G", match.GoalsLocal, match.GoalsVisitor);
+                    }
+                    else if (match.GoalsLocal == match.GoalsVisitor) {
+                        // Equipos empatados
+                        fnUpdateTable2(match.TeamIdLocal, "L", "E", match.GoalsLocal, match.GoalsVisitor);
+                        fnUpdateTable2(match.TeamIdVisitor, "V", "E", match.GoalsLocal, match.GoalsVisitor);
+                    }
                 }
             });
 
@@ -806,8 +816,6 @@
                 NFixture: nfixture,
                 Positions: JSON.parse(JSON.stringify(_positionsCache))
             });
-
-            //fnGenerateCSVFile(nfixture,matches, teams);
         }
 
         function fnUpdateTable2(teamId, state, resultType, goalsLocal, goalsVisitor) {
@@ -983,7 +991,186 @@
             });
         }
 
-        function fnGenerateNextPrediction(positions, teams) {
+        function fnGenerateNextPrediction(positions, teams, nextMatches) {
+            var
+                locals = [],
+                visitors = [],
+                l = [],
+                v = [],
+                // Locals
+                l_LJ = [],
+                l_LG = [],
+                l_LE = [],
+                l_LP = [],
+                l_LGF = [],
+                l_LGC = [],
+                l_LDG = [],
+                l_LPts = [],
+                l_VJ = [],
+                l_VG = [],
+                l_VE = [],
+                l_VP = [],
+                l_VGF = [],
+                l_VGC = [],
+                l_VDG = [],
+                l_VPts = [],
+                l_TJ = [],
+                l_TG = [],
+                l_TE = [],
+                l_TP = [],
+                l_TGF = [],
+                l_TGC = [],
+                l_TDG = [],
+                l_TPts = [],
+                l_Pos = [],
+                // Visitors
+                v_LJ = [],
+                v_LG = [],
+                v_LE = [],
+                v_LP = [],
+                v_LGF = [],
+                v_LGC = [],
+                v_LDG = [],
+                v_LPts = [],
+                v_VJ = [],
+                v_VG = [],
+                v_VE = [],
+                v_VP = [],
+                v_VGF = [],
+                v_VGC = [],
+                v_VDG = [],
+                v_VPts = [],
+                v_TJ = [],
+                v_TG = [],
+                v_TE = [],
+                v_TP = [],
+                v_TGF = [],
+                v_TGC = [],
+                v_TDG = [],
+                v_TPts = [],
+                v_Pos = [];
+
+            nextMatches.map(m=> {
+                var
+                    teamlocal = teams.find(f=>f.Id == m.TeamIdLocal),
+                    teamvisitor = teams.find(f=>f.Id == m.TeamIdVisitor);
+
+                locals.push(teamlocal.Name);
+                visitors.push(teamvisitor.Name);
+
+                var teamA = positions.find(f=> f.TeamId == teamlocal.Id);                
+                l_LJ.push(teamA["LJ"]);
+                l_LG.push(teamA["LG"]);
+                l_LE.push(teamA["LE"]);
+                l_LP.push(teamA["LP"]);
+                l_LGF.push(teamA["LGF"]);
+                l_LGC.push(teamA["LGC"]);
+                l_LDG.push(teamA["LDG"]);
+                l_LPts.push(teamA["LPts"]);
+                l_VJ.push(teamA["VJ"]);
+                l_VG.push(teamA["VG"]);
+                l_VE.push(teamA["VE"]);
+                l_VP.push(teamA["VP"]);
+                l_VGF.push(teamA["VGF"]);
+                l_VGC.push(teamA["VGC"]);
+                l_VDG.push(teamA["VDG"]);
+                l_VPts.push(teamA["VPts"]);
+                l_TJ.push(teamA["TJ"]);
+                l_TG.push(teamA["TG"]);
+                l_TE.push(teamA["TE"]);
+                l_TP.push(teamA["TP"]);
+                l_TGF.push(teamA["TGF"]);
+                l_TGC.push(teamA["TGC"]);
+                l_TDG.push(teamA["TDG"]);
+                l_TPts.push(teamA["TPts"]);
+                l_Pos.push(teamA["Pos"]);
+                
+
+                var teamB = positions.find(f=> f.TeamId == teamvisitor.Id);                
+                v_LJ.push(teamB["LJ"]);
+                v_LG.push(teamB["LG"]);
+                v_LE.push(teamB["LE"]);
+                v_LP.push(teamB["LP"]);
+                v_LGF.push(teamB["LGF"]);
+                v_LGC.push(teamB["LGC"]);
+                v_LDG.push(teamB["LDG"]);
+                v_LPts.push(teamB["LPts"]);
+                v_VJ.push(teamB["VJ"]);
+                v_VG.push(teamB["VG"]);
+                v_VE.push(teamB["VE"]);
+                v_VP.push(teamB["VP"]);
+                v_VGF.push(teamB["VGF"]);
+                v_VGC.push(teamB["VGC"]);
+                v_VDG.push(teamB["VDG"]);
+                v_VPts.push(teamB["VPts"]);
+                v_TJ.push(teamB["TJ"]);
+                v_TG.push(teamB["TG"]);
+                v_TE.push(teamB["TE"]);
+                v_TP.push(teamB["TP"]);
+                v_TGF.push(teamB["TGF"]);
+                v_TGC.push(teamB["TGC"]);
+                v_TDG.push(teamB["TDG"]);
+                v_TPts.push(teamB["TPts"]);
+                v_Pos.push(teamB["Pos"]);                
+
+            });
+
+            // Imprimir
+            console.log(l_LJ);
+            console.log(l_LG);
+            console.log(l_LE);
+            console.log(l_LP);
+            console.log(l_LGF);
+            console.log(l_LGC);
+            console.log(l_LDG);
+            console.log(l_LPts);
+            console.log(l_VJ);
+            console.log(l_VG);
+            console.log(l_VE);
+            console.log(l_VP);
+            console.log(l_VGF);
+            console.log(l_VGC);
+            console.log(l_VDG);
+            console.log(l_VPts);
+            console.log(l_TJ);
+            console.log(l_TG);
+            console.log(l_TE);
+            console.log(l_TP);
+            console.log(l_TGF);
+            console.log(l_TGC);
+            console.log(l_TDG);
+            console.log(l_TPts);
+            console.log(l_Pos);
+
+            console.log(v_LJ);
+            console.log(v_LG);
+            console.log(v_LE);
+            console.log(v_LP);
+            console.log(v_LGF);
+            console.log(v_LGC);
+            console.log(v_LDG);
+            console.log(v_LPts);
+            console.log(v_VJ);
+            console.log(v_VG);
+            console.log(v_VE);
+            console.log(v_VP);
+            console.log(v_VGF);
+            console.log(v_VGC);
+            console.log(v_VDG);
+            console.log(v_VPts);
+            console.log(v_TJ);
+            console.log(v_TG);
+            console.log(v_TE);
+            console.log(v_TP);
+            console.log(v_TGF);
+            console.log(v_TGC);
+            console.log(v_TDG);
+            console.log(v_TPts);
+            console.log(v_Pos);
+
+            console.log(locals);
+            console.log(visitors);
+
             var text = "";
             positions.map(t=> {
                 var team = teams.find(f=>f.Id == t.TeamId);
@@ -1000,7 +1187,7 @@
             $("#divResults").addClass("hidden");
             $("#btnAddNextFixtureOnly").removeClass("hidden");
             //$("#btnAddResult").removeClass("hidden");
-            
+
 
             var
                 season = $('#season').val(),
@@ -1021,7 +1208,7 @@
             $.ajax({
                 url: "/Result/GetNextFixture",
                 method: "POST",
-                data: JSON.stringify({  fixture: _fixture, }),
+                data: JSON.stringify({ fixture: _fixture, }),
                 contentType: "application/json; charset=utf-8",
                 success: function (response) {
                     _matches = response.filter(f=>f.Played == false);
@@ -1043,7 +1230,7 @@
                                             "<td><input type='number' class='form-control' id='goalslocal' value='" + m.GoalsLocal + "' min='0' max='10'/></td>" +
                                             "<td class='text-right'><input type='number' class='form-control' id='goalsvisitor' value='" + m.GoalsVisitor + "' min='0' max='10'/></td>" +
                                             "<td class='text-right' data-idvisitor='" + m.TeamIdVisitor + "'>" + teamVisitor.Name + "</td>" +
-                                            "<td class='hidden'>" + m.Id + "/"+ m.FixtureId +"</td>" +
+                                            "<td class='hidden'>" + m.Id + "/" + m.FixtureId + "</td>" +
                                             "<td class='text-center'>" +
                                                 "<button type='button' data-toggle='tooltip' title='Eliminar Registro' class='btn btn-danger btn-sm' teamIdLocal='" + teamLocal.Id + "' teamIdVisitor='" + teamVisitor.Id + "' onclick='fnDeleteResult(this)'>" +
                                                     "<i class='glyphicon glyphicon-trash'></i>" +
@@ -1053,7 +1240,7 @@
                                         "</tr>"
 
                         //"<input type='checkbox' '" + (m.Played ? 'checked' : '' )+ "'> Jugado" +
-                        $('#tableResults tbody').append(tr);                            
+                        $('#tableResults tbody').append(tr);
                     });
                     $("#divResults").removeClass("hidden");
                     $("#btnAddNextFixtureOnly").addClass("hidden");
@@ -1067,7 +1254,7 @@
             });
         }
 
-        function fnAddNextFixtureOnly() {           
+        function fnAddNextFixtureOnly() {
 
             var
                 season = $('#season').val(),
@@ -1117,7 +1304,7 @@
                     var err = textStatus + ", " + jqXHR;
                     alert("Error al guardar la próxima fecha. " + err);
                 }
-            });            
+            });
         }
 
         function fnDisabled(value) {
@@ -1132,27 +1319,27 @@
             }
         }
 
-            //$.ajax({
-            //    url: 'http://api.football-data.org/v2/teams/5/matches?status=FINISHED&limit=1',
-            //    headers: {
-            //        'X-Auth-Token': 'bb2761bad403458489f1f9425d897f16',
-            //        'Access-Control-Allow-Methods': "GET",
-            //        'Access-Control-Allow-Origin': "*",
-            //        'Access-Control-Allow-Headers': "x-auth-token, x-response-control",
-            //        'Content-Length': 0,
-            //        'Content-Type': 'text/plain',
-            //    },
-            //    //method: "GET",
-            //    //contentType: "application/json; charset=utf-8",
-            //    //crossDomain: true,
-            //    success: function (result) {
-            //        // process result
-            //        console.log(result);
-            //    },
-            //    error: function (e) {
-            //        // log error in browser
-            //        console.log(e.message);
-            //    }
-            //});
+        //$.ajax({
+        //    url: 'http://api.football-data.org/v2/teams/5/matches?status=FINISHED&limit=1',
+        //    headers: {
+        //        'X-Auth-Token': 'bb2761bad403458489f1f9425d897f16',
+        //        'Access-Control-Allow-Methods': "GET",
+        //        'Access-Control-Allow-Origin': "*",
+        //        'Access-Control-Allow-Headers': "x-auth-token, x-response-control",
+        //        'Content-Length': 0,
+        //        'Content-Type': 'text/plain',
+        //    },
+        //    //method: "GET",
+        //    //contentType: "application/json; charset=utf-8",
+        //    //crossDomain: true,
+        //    success: function (result) {
+        //        // process result
+        //        console.log(result);
+        //    },
+        //    error: function (e) {
+        //        // log error in browser
+        //        console.log(e.message);
+        //    }
+        //});
     </script>
 }
