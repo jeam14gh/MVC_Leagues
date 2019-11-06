@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using MVC_League.Entities;
+using System.Data.Entity.Migrations;
 
 namespace MVC_League.Models.Data
 {
@@ -16,8 +17,21 @@ namespace MVC_League.Models.Data
 
         public void AddMany(List<Match> matches)
         {
-            db.Matches.AddRange(matches);
-            db.SaveChanges();
+            //db.Matches.AddRange(matches);
+            //db.SaveChanges();
+
+            try
+            {
+                foreach (var match in matches)
+                {
+                    db.Matches.AddOrUpdate(u => u.Id, match);
+                }
+                db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Error.Message = "Error al agregar o actualizar partidos: " + ex.Message;
+            }
         }
 
         // Obtiene todas las fechas por el numero de la fecha

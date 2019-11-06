@@ -468,14 +468,15 @@
                         idvisitor = $(this).children('td').eq(3).data('idvisitor'),
                         td = $(this).children('td').eq(4).text().split('/'),
                         matchId = td[0],
-                        fixtureId = td[1];
+                        fixtureId = td[1],
+                        played = $(this).children('td').eq(5).find('input[type=checkbox]').is(':checked');
 
                         _matches.push({
                             FixtureId: fixtureId,
                             GoalsLocal: goalslocal,
                             GoalsVisitor: goalsvisitor,
                             Id: matchId,
-                            Played: true,
+                            Played: played,
                             TeamIdLocal: idlocal,
                             TeamIdVisitor: idvisitor
                         });
@@ -485,22 +486,25 @@
             }
 
             _matches.map(match=> {
-                if (match.GoalsLocal > match.GoalsVisitor) {
-                    // Local ganador
-                    fnUpdateTable(match.TeamIdLocal, "L", "G", match.GoalsLocal, match.GoalsVisitor);
-                    // Visitante perdedor
-                    fnUpdateTable(match.TeamIdVisitor, "V", "P", match.GoalsLocal, match.GoalsVisitor);
-                }
-                else if (match.GoalsVisitor > match.GoalsLocal) {
-                    // Local perdedor
-                    fnUpdateTable(match.TeamIdLocal, "L", "P", match.GoalsLocal, match.GoalsVisitor);
-                    // Visitante ganador
-                    fnUpdateTable(match.TeamIdVisitor, "V", "G", match.GoalsLocal, match.GoalsVisitor);
-                }
-                else if (match.GoalsLocal == match.GoalsVisitor) {
-                    // Equipos empatados
-                    fnUpdateTable(match.TeamIdLocal, "L", "E", match.GoalsLocal, match.GoalsVisitor);
-                    fnUpdateTable(match.TeamIdVisitor, "V", "E", match.GoalsLocal, match.GoalsVisitor);
+                // Indica que el partido fue jugado
+                if (match.Played) {
+                    if (match.GoalsLocal > match.GoalsVisitor) {
+                        // Local ganador
+                        fnUpdateTable(match.TeamIdLocal, "L", "G", match.GoalsLocal, match.GoalsVisitor);
+                        // Visitante perdedor
+                        fnUpdateTable(match.TeamIdVisitor, "V", "P", match.GoalsLocal, match.GoalsVisitor);
+                    }
+                    else if (match.GoalsVisitor > match.GoalsLocal) {
+                        // Local perdedor
+                        fnUpdateTable(match.TeamIdLocal, "L", "P", match.GoalsLocal, match.GoalsVisitor);
+                        // Visitante ganador
+                        fnUpdateTable(match.TeamIdVisitor, "V", "G", match.GoalsLocal, match.GoalsVisitor);
+                    }
+                    else if (match.GoalsLocal == match.GoalsVisitor) {
+                        // Equipos empatados
+                        fnUpdateTable(match.TeamIdLocal, "L", "E", match.GoalsLocal, match.GoalsVisitor);
+                        fnUpdateTable(match.TeamIdVisitor, "V", "E", match.GoalsLocal, match.GoalsVisitor);
+                    }
                 }
             });
 
@@ -1044,10 +1048,11 @@
                                                 "<button type='button' data-toggle='tooltip' title='Eliminar Registro' class='btn btn-danger btn-sm' teamIdLocal='" + teamLocal.Id + "' teamIdVisitor='" + teamVisitor.Id + "' onclick='fnDeleteResult(this)'>" +
                                                     "<i class='glyphicon glyphicon-trash'></i>" +
                                                 "</button>" +
+                                                "<input type='checkbox' checked> Jugado" +
                                             "</td>" +
                                         "</tr>"
 
-
+                        //"<input type='checkbox' '" + (m.Played ? 'checked' : '' )+ "'> Jugado" +
                         $('#tableResults tbody').append(tr);                            
                     });
                     $("#divResults").removeClass("hidden");
