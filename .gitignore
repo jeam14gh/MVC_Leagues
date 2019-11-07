@@ -246,3 +246,6 @@ ModelManifest.xml
 
 # Ignorar packages
 /packages
+/.vs
+/MVC_League/bin
+/MVC_League/obj

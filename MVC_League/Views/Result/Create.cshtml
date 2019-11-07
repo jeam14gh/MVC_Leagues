@@ -198,7 +198,7 @@
                 <div class="form-inline row">
                     <div class="form-group col-sm-3">
                         <label class="col-form-label">Temporada:</label>
-                        <input type="number" min="2010" id="ageSeason" value="20192" class="form-control" />
+                        <input type="number" min="2010" id="ageSeason" value="20192020" class="form-control" />
                     </div>
                     <div class="form-group col-sm-2">
                         <label class="col-form-label">Fecha:</label>
@@ -297,7 +297,13 @@
                                 lessMatch.push(teamB.TeamId);
                             }
                         });
-                        _nextFixture = max.TJ + 1;
+
+                        if (max === undefined) {
+                            console.log("Error al obtenener la próxima fecha!")
+                            _nextFixture = 1;
+                        } else {
+                            _nextFixture = max.TJ + 1;
+                        }
                     }
 
                     LoadTablePositions(_positions);
@@ -969,7 +975,7 @@
                             "," + local["TJ"] + "," + local["TG"] + "," + local["TE"] + "," + local["TP"] + "," + local["TGF"] + "," + local["TGC"] + "," + local["TDG"] + "," + local["TPts"] + "," + local["Pos"] +
                             "," + visitor["LJ"] + "," + visitor["LG"] + "," + visitor["LE"] + "," + visitor["LP"] + "," + visitor["LGF"] + "," + visitor["LGC"] + "," + visitor["LDG"] + "," + visitor["LPts"] +
                             "," + visitor["VJ"] + "," + visitor["VG"] + "," + visitor["VE"] + "," + visitor["VP"] + "," + visitor["VGF"] + "," + visitor["VGC"] + "," + visitor["VDG"] + "," + visitor["VPts"] +
-                            "," + visitor["TJ"] + "," + visitor["TG"] + "," + visitor["TE"] + "," + visitor["TP"] + "," + visitor["TGF"] + "," + visitor["TGC"] + "," + visitor["TDG"] + "," + visitor["TPts"] + "," + visitor["Pos"] + "," + goalsLocal + "," + goalsVisitor + ";\n";
+                            "," + visitor["TJ"] + "," + visitor["TG"] + "," + visitor["TE"] + "," + visitor["TP"] + "," + visitor["TGF"] + "," + visitor["TGC"] + "," + visitor["TDG"] + "," + visitor["TPts"] + "," + visitor["Pos"] + "," + goalsLocal + "," + goalsVisitor + "\n";
         }
 
         function fnCreateCSVFile() {
@@ -993,62 +999,16 @@
 
         function fnGenerateNextPrediction(positions, teams, nextMatches) {
             var
-                locals = [],
-                visitors = [],
-                l = [],
-                v = [],
+                // Nombre de locales y visitantes
+                locals = [], visitors = [],
                 // Locals
-                l_LJ = [],
-                l_LG = [],
-                l_LE = [],
-                l_LP = [],
-                l_LGF = [],
-                l_LGC = [],
-                l_LDG = [],
-                l_LPts = [],
-                l_VJ = [],
-                l_VG = [],
-                l_VE = [],
-                l_VP = [],
-                l_VGF = [],
-                l_VGC = [],
-                l_VDG = [],
-                l_VPts = [],
-                l_TJ = [],
-                l_TG = [],
-                l_TE = [],
-                l_TP = [],
-                l_TGF = [],
-                l_TGC = [],
-                l_TDG = [],
-                l_TPts = [],
-                l_Pos = [],
+                l_LJ = [],l_LG = [],l_LE = [],l_LP = [],l_LGF = [],l_LGC = [],l_LDG = [],l_LPts = [],
+                l_VJ = [],l_VG = [],l_VE = [],l_VP = [],l_VGF = [],l_VGC = [],l_VDG = [],l_VPts = [],
+                l_TJ = [],l_TG = [],l_TE = [],l_TP = [],l_TGF = [],l_TGC = [],l_TDG = [],l_TPts = [],l_Pos = [],
                 // Visitors
-                v_LJ = [],
-                v_LG = [],
-                v_LE = [],
-                v_LP = [],
-                v_LGF = [],
-                v_LGC = [],
-                v_LDG = [],
-                v_LPts = [],
-                v_VJ = [],
-                v_VG = [],
-                v_VE = [],
-                v_VP = [],
-                v_VGF = [],
-                v_VGC = [],
-                v_VDG = [],
-                v_VPts = [],
-                v_TJ = [],
-                v_TG = [],
-                v_TE = [],
-                v_TP = [],
-                v_TGF = [],
-                v_TGC = [],
-                v_TDG = [],
-                v_TPts = [],
-                v_Pos = [];
+                v_LJ = [], v_LG = [], v_LE = [], v_LP = [], v_LGF = [], v_LGC = [], v_LDG = [], v_LPts = [],
+                v_VJ = [], v_VG = [], v_VE = [], v_VP = [], v_VGF = [], v_VGC = [], v_VDG = [], v_VPts = [],
+                v_TJ = [], v_TG = [], v_TE = [], v_TP = [], v_TGF = [], v_TGC = [], v_TDG = [], v_TPts = [], v_Pos = [];
 
             nextMatches.map(m=> {
                 var
@@ -1083,8 +1043,7 @@
                 l_TGC.push(teamA["TGC"]);
                 l_TDG.push(teamA["TDG"]);
                 l_TPts.push(teamA["TPts"]);
-                l_Pos.push(teamA["Pos"]);
-                
+                l_Pos.push(teamA["Pos"]);                
 
                 var teamB = positions.find(f=> f.TeamId == teamvisitor.Id);                
                 v_LJ.push(teamB["LJ"]);
@@ -1111,65 +1070,66 @@
                 v_TGC.push(teamB["TGC"]);
                 v_TDG.push(teamB["TDG"]);
                 v_TPts.push(teamB["TPts"]);
-                v_Pos.push(teamB["Pos"]);                
-
+                v_Pos.push(teamB["Pos"]);
             });
 
-            // Imprimir
-            console.log(l_LJ);
-            console.log(l_LG);
-            console.log(l_LE);
-            console.log(l_LP);
-            console.log(l_LGF);
-            console.log(l_LGC);
-            console.log(l_LDG);
-            console.log(l_LPts);
-            console.log(l_VJ);
-            console.log(l_VG);
-            console.log(l_VE);
-            console.log(l_VP);
-            console.log(l_VGF);
-            console.log(l_VGC);
-            console.log(l_VDG);
-            console.log(l_VPts);
-            console.log(l_TJ);
-            console.log(l_TG);
-            console.log(l_TE);
-            console.log(l_TP);
-            console.log(l_TGF);
-            console.log(l_TGC);
-            console.log(l_TDG);
-            console.log(l_TPts);
-            console.log(l_Pos);
+            // Imprimir locales
+            console.log(JSON.stringify(l_LJ) + "\n" +
+                        JSON.stringify(l_LG) + "\n" + 
+                        JSON.stringify(l_LE) + "\n" + 
+                        JSON.stringify(l_LP) + "\n" + 
+                        JSON.stringify(l_LGF) + "\n" + 
+                        JSON.stringify(l_LGC) + "\n" + 
+                        JSON.stringify(l_LDG) + "\n" + 
+                        JSON.stringify(l_LPts) + "\n" + 
+                        JSON.stringify(l_VJ) + "\n" + 
+                        JSON.stringify(l_VG) + "\n" + 
+                        JSON.stringify(l_VE) + "\n" + 
+                        JSON.stringify(l_VP) + "\n" + 
+                        JSON.stringify(l_VGF) + "\n" + 
+                        JSON.stringify(l_VGC) + "\n" + 
+                        JSON.stringify(l_VDG) + "\n" + 
+                        JSON.stringify(l_VPts) + "\n" + 
+                        JSON.stringify(l_TJ) + "\n" + 
+                        JSON.stringify(l_TG) + "\n" + 
+                        JSON.stringify(l_TE) + "\n" + 
+                        JSON.stringify(l_TP) + "\n" + 
+                        JSON.stringify(l_TGF) + "\n" + 
+                        JSON.stringify(l_TGC) + "\n" + 
+                        JSON.stringify(l_TDG) + "\n" + 
+                        JSON.stringify(l_TPts) + "\n" + 
+                        JSON.stringify(l_Pos) + "\n");
+           
+            // Imprimir visitantes
+            console.log(JSON.stringify(v_LJ) + "\n" +
+                        JSON.stringify(v_LG) + "\n" +
+                        JSON.stringify(v_LE) + "\n" +
+                        JSON.stringify(v_LP) + "\n" +
+                        JSON.stringify(v_LGF) + "\n" +
+                        JSON.stringify(v_LGC) + "\n" +
+                        JSON.stringify(v_LDG) + "\n" +
+                        JSON.stringify(v_LPts) + "\n" +
+                        JSON.stringify(v_VJ) + "\n" +
+                        JSON.stringify(v_VG) + "\n" +
+                        JSON.stringify(v_VE) + "\n" +
+                        JSON.stringify(v_VP) + "\n" +
+                        JSON.stringify(v_VGF) + "\n" +
+                        JSON.stringify(v_VGC) + "\n" +
+                        JSON.stringify(v_VDG) + "\n" +
+                        JSON.stringify(v_VPts) + "\n" +
+                        JSON.stringify(v_TJ) + "\n" +
+                        JSON.stringify(v_TG) + "\n" +
+                        JSON.stringify(v_TE) + "\n" +
+                        JSON.stringify(v_TP) + "\n" +
+                        JSON.stringify(v_TGF) + "\n" +
+                        JSON.stringify(v_TGC) + "\n" +
+                        JSON.stringify(v_TDG) + "\n" +
+                        JSON.stringify(v_TPts) + "\n" +
+                        JSON.stringify(v_Pos) + "\n");
 
-            console.log(v_LJ);
-            console.log(v_LG);
-            console.log(v_LE);
-            console.log(v_LP);
-            console.log(v_LGF);
-            console.log(v_LGC);
-            console.log(v_LDG);
-            console.log(v_LPts);
-            console.log(v_VJ);
-            console.log(v_VG);
-            console.log(v_VE);
-            console.log(v_VP);
-            console.log(v_VGF);
-            console.log(v_VGC);
-            console.log(v_VDG);
-            console.log(v_VPts);
-            console.log(v_TJ);
-            console.log(v_TG);
-            console.log(v_TE);
-            console.log(v_TP);
-            console.log(v_TGF);
-            console.log(v_TGC);
-            console.log(v_TDG);
-            console.log(v_TPts);
-            console.log(v_Pos);
-
-            console.log(locals);
-            console.log(visitors);
+            // Imprimir nombres de locales y visitantes
+            console.log(JSON.stringify(locals) + "\n" + JSON.stringify(visitors));
+            
 
             var text = "";
             positions.map(t=> {
