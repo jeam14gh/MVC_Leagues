@@ -776,10 +776,10 @@
                         fnGenerateCSVFile2(m.NFixture, m.Matches, teams);
                     });
 
-                    //fnCreateCSVFile();
-                    console.log(_textCSV);
-                    var nextPrediction = fnGenerateNextPrediction(_positionsCache, teams, nextMatches);
-                    console.log(nextPrediction);
+                    var league= _leagues.find(f=>f.Id == _leagueId);
+                    var leagueName = (league === undefined) ? "Liga" : league.Name;
+
+                    fnGenerateNextPrediction(_textCSV, _positionsCache, teams, nextMatches, leagueName);
 
                     _textCSV = "";
                     _positionsCache = [];
@@ -997,7 +997,7 @@
             });
         }
 
-        function fnGenerateNextPrediction(positions, teams, nextMatches) {
+        function fnGenerateNextPrediction(beforeFixturesTxt, positions, teams, nextMatches, leagueName) {
             var
                 // Nombre de locales y visitantes
                 locals = [], visitors = [],
@@ -1074,62 +1074,65 @@
             });
 
             // Imprimir locales
-            console.log(JSON.stringify(l_LJ) + "\n" +
-                        JSON.stringify(l_LG) + "\n" + 
-                        JSON.stringify(l_LE) + "\n" + 
-                        JSON.stringify(l_LP) + "\n" + 
-                        JSON.stringify(l_LGF) + "\n" + 
-                        JSON.stringify(l_LGC) + "\n" + 
-                        JSON.stringify(l_LDG) + "\n" + 
-                        JSON.stringify(l_LPts) + "\n" + 
-                        JSON.stringify(l_VJ) + "\n" + 
-                        JSON.stringify(l_VG) + "\n" + 
-                        JSON.stringify(l_VE) + "\n" + 
-                        JSON.stringify(l_VP) + "\n" + 
-                        JSON.stringify(l_VGF) + "\n" + 
-                        JSON.stringify(l_VGC) + "\n" + 
-                        JSON.stringify(l_VDG) + "\n" + 
-                        JSON.stringify(l_VPts) + "\n" + 
-                        JSON.stringify(l_TJ) + "\n" + 
-                        JSON.stringify(l_TG) + "\n" + 
-                        JSON.stringify(l_TE) + "\n" + 
-                        JSON.stringify(l_TP) + "\n" + 
-                        JSON.stringify(l_TGF) + "\n" + 
-                        JSON.stringify(l_TGC) + "\n" + 
-                        JSON.stringify(l_TDG) + "\n" + 
-                        JSON.stringify(l_TPts) + "\n" + 
-                        JSON.stringify(l_Pos) + "\n");
-           
-            // Imprimir visitantes
-            console.log(JSON.stringify(v_LJ) + "\n" +
-                        JSON.stringify(v_LG) + "\n" +
-                        JSON.stringify(v_LE) + "\n" +
-                        JSON.stringify(v_LP) + "\n" +
-                        JSON.stringify(v_LGF) + "\n" +
-                        JSON.stringify(v_LGC) + "\n" +
-                        JSON.stringify(v_LDG) + "\n" +
-                        JSON.stringify(v_LPts) + "\n" +
-                        JSON.stringify(v_VJ) + "\n" +
-                        JSON.stringify(v_VG) + "\n" +
-                        JSON.stringify(v_VE) + "\n" +
-                        JSON.stringify(v_VP) + "\n" +
-                        JSON.stringify(v_VGF) + "\n" +
-                        JSON.stringify(v_VGC) + "\n" +
-                        JSON.stringify(v_VDG) + "\n" +
-                        JSON.stringify(v_VPts) + "\n" +
-                        JSON.stringify(v_TJ) + "\n" +
-                        JSON.stringify(v_TG) + "\n" +
-                        JSON.stringify(v_TE) + "\n" +
-                        JSON.stringify(v_TP) + "\n" +
-                        JSON.stringify(v_TGF) + "\n" +
-                        JSON.stringify(v_TGC) + "\n" +
-                        JSON.stringify(v_TDG) + "\n" +
-                        JSON.stringify(v_TPts) + "\n" +
-                        JSON.stringify(v_Pos) + "\n");
+            var predict = "predict_x = {\n" +
+                        "'J':" + JSON.stringify(l_LJ) + ",\n" +
+                        "'G':" + JSON.stringify(l_LG) + ",\n" +
+                        "'E':" + JSON.stringify(l_LE) + ",\n" +
+                        "'P':" + JSON.stringify(l_LP) + ",\n" +
+                        "'GF':" + JSON.stringify(l_LGF) + ",\n" +
+                        "'GC':" + JSON.stringify(l_LGC) + ",\n" +
+                        "'DF':" + JSON.stringify(l_LDG) + ",\n" +
+                        "'Pts.':" + JSON.stringify(l_LPts) + ",\n" +
+                        "'J.1':" + JSON.stringify(l_VJ) + ",\n" +
+                        "'G.1':" + JSON.stringify(l_VG) + ",\n" +
+                        "'E.1':" + JSON.stringify(l_VE) + ",\n" +
+                        "'P.1':" + JSON.stringify(l_VP) + ",\n" +
+                        "'GF.1':" + JSON.stringify(l_VGF) + ",\n" +
+                        "'GC.1':" + JSON.stringify(l_VGC) + ",\n" +
+                        "'DF.1':" + JSON.stringify(l_VDG) + ",\n" +
+                        "'Pts..1':" + JSON.stringify(l_VPts) + ",\n" +
+                        "'J.2':" + JSON.stringify(l_TJ) + ",\n" +
+                        "'G.2':" + JSON.stringify(l_TG) + ",\n" +
+                        "'E.2':" + JSON.stringify(l_TE) + ",\n" +
+                        "'P.2':" + JSON.stringify(l_TP) + ",\n" +
+                        "'GF.2':" + JSON.stringify(l_TGF) + ",\n" +
+                        "'GC.2':" + JSON.stringify(l_TGC) + ",\n" +
+                        "'DF.2':" + JSON.stringify(l_TDG) + ",\n" +
+                        "'Pts..2':" + JSON.stringify(l_TPts) + ",\n" +
+                        "'Pos':" + JSON.stringify(l_Pos) + ",\n" +
+                        // Imprimir visitantes
+                        "'J.3':" + JSON.stringify(v_LJ) + ",\n" +
+                        "'G.3':" + JSON.stringify(v_LG) + ",\n" +
+                        "'E.3':" + JSON.stringify(v_LE) + ",\n" +
+                        "'P.3':" + JSON.stringify(v_LP) + ",\n" +
+                        "'GF.3':" + JSON.stringify(v_LGF) + ",\n" +
+                        "'GC.3':" + JSON.stringify(v_LGC) + ",\n" +
+                        "'DF.3':" + JSON.stringify(v_LDG) + ",\n" +
+                        "'Pts..3':" + JSON.stringify(v_LPts) + ",\n" +
+                        "'J.4':" + JSON.stringify(v_VJ) + ",\n" +
+                        "'G.4':" + JSON.stringify(v_VG) + ",\n" +
+                        "'E.4':" + JSON.stringify(v_VE) + ",\n" +
+                        "'P.4':" + JSON.stringify(v_VP) + ",\n" +
+                        "'GF.4':" + JSON.stringify(v_VGF) + ",\n" +
+                        "'GC.4':" + JSON.stringify(v_VGC) + ",\n" +
+                        "'DF.4':" + JSON.stringify(v_VDG) + ",\n" +
+                        "'Pts..4':" + JSON.stringify(v_VPts) + ",\n" +
+                        "'J.5':" + JSON.stringify(v_TJ) + ",\n" +
+                        "'G.5':" + JSON.stringify(v_TG) + ",\n" +
+                        "'E.5':" + JSON.stringify(v_TE) + ",\n" +
+                        "'P.5':" + JSON.stringify(v_TP) + ",\n" +
+                        "'GF.5':" + JSON.stringify(v_TGF) + ",\n" +
+                        "'GC.5':" + JSON.stringify(v_TGC) + ",\n" +
+                        "'DF.5':" + JSON.stringify(v_TDG) + ",\n" +
+                        "'Pts..5':" + JSON.stringify(v_TPts) + ",\n" +
+                        "'Pos.1':" + JSON.stringify(v_Pos) + ",\n" +
+                    "}";
 
             // Imprimir nombres de locales y visitantes
-            console.log(JSON.stringify(locals) + "\n" + JSON.stringify(visitors));
-            
+            var games = "Local = " + JSON.stringify(locals) + "\n" + "Visitante = " + JSON.stringify(visitors);
+
+            var blob = new Blob(["::: FECHAS ANTERIORES :::\n\n", beforeFixturesTxt, "\n\n::: PARTIDOS :::\n\n", games, "\n\n::: PREDICIONES :::\n\n", predict], { type: "text/plain;charset=utf-8" });
+            saveAs(blob, leagueName + ".txt"); 
 
             var text = "";
             positions.map(t=> {
@@ -1139,7 +1142,8 @@
                                 "," + t["VJ"] + "," + t["VG"] + "," + t["VE"] + "," + t["VP"] + "," + t["VGF"] + "," + t["VGC"] + "," + t["VDG"] + "," + t["VPts"] +
                                 "," + t["TJ"] + "," + t["TG"] + "," + t["TE"] + "," + t["TP"] + "," + t["TGF"] + "," + t["TGC"] + "," + t["TDG"] + "," + t["TPts"] + "," + t["Pos"] + ",\n";
             });
-            return text;
+            console.log("Tabla de posiones actual.\n" + text)
+            //return text;
         }
 
         function fnLoadFixture() {
