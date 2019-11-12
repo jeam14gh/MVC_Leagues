@@ -93,6 +93,11 @@
                     </div>
                 </div>
             </div>
+
+            <button type="button" id="btnLoadApi" class="btn btn-success btn-toolbar btn-block" onclick="fnLoadApi()">
+                Cargar API
+            </button>
+
         </div>
         <div class="col-md-6 hidden" id="divResults">
             <div class="col-md-12 nav navbar-btn">
@@ -230,7 +235,8 @@
             _textCSV = "",
             _positionsByFixture = [],
             _lastFixtureRegistered,
-            _fixtureLoaded = false;
+            _fixtureLoaded = false,
+            _currentFixture;
 
         //$.getJSON("/Home/GetLeaguesTeams").
         //done((data) => {
@@ -278,32 +284,34 @@
                     } else {
                         _positions = response.Positions;
 
+                        _currentFixture = Math.max(..._positions.map(m=>{ return m.TJ}));
+                        _nextFixture = _currentFixture + 1;
                         // INDICA LA PROXIMA FECHA QUE SE VA A JUGAR
-                        var lessMatch = [];
-                        var max = _positions.reduce((teamA, teamB) => {
-                            if (teamA === undefined) {
-                                return teamB;
-                            }
-                            else if (teamB === undefined) {
-                                return teamA
-                            }
+                        //var lessMatch = [];
+                        //var max = _positions.reduce((teamA, teamB) => {
+                        //    if (teamA === undefined) {
+                        //        return teamB;
+                        //    }
+                        //    else if (teamB === undefined) {
+                        //        return teamA
+                        //    }
 
-                            if (teamA.TJ == teamB.TJ) {
-                                return teamA;
-                            }
-                            else if (teamA < teamB) {
-                                lessMatch.push(teamA.TeamId);
-                            } else {
-                                lessMatch.push(teamB.TeamId);
-                            }
-                        });
+                        //    if (teamA.TJ == teamB.TJ) {
+                        //        return teamA;
+                        //    }
+                        //    else if (teamA < teamB) {
+                        //        lessMatch.push(teamA.TeamId);
+                        //    } else {
+                        //        lessMatch.push(teamB.TeamId);
+                        //    }
+                        //});
 
-                        if (max === undefined) {
-                            console.log("Error al obtenener la próxima fecha!")
-                            _nextFixture = 1;
-                        } else {
-                            _nextFixture = max.TJ + 1;
-                        }
+                        //if (max === undefined) {
+                        //    console.log("Error al obtenener la próxima fecha!")
+                        //    _nextFixture = 1;
+                        //} else {
+                        //    _nextFixture = max.TJ + 1;
+                        //}
                     }
 
                     LoadTablePositions(_positions);
@@ -735,6 +743,11 @@
                 return;
             }
 
+            if (fixtureTo > _currentFixture) {
+                alert("La fecha debe ser menor o igual al total de partidos jugados de esta liga!")
+                return;
+            }
+
             var _dic = {
                 NFixtureTo: parseInt(fixtureTo) + 1,
                 LeagueId: leagueId,
@@ -978,6 +991,12 @@
                             "," + visitor["TJ"] + "," + visitor["TG"] + "," + visitor["TE"] + "," + visitor["TP"] + "," + visitor["TGF"] + "," + visitor["TGC"] + "," + visitor["TDG"] + "," + visitor["TPts"] + "," + visitor["Pos"] + "," + goalsLocal + "," + goalsVisitor + "\n";
         }
 
+        $('#requestFixtures').on('show.bs.modal', function (e) {
+            $("#fixtureTo").attr('max', _currentFixture);
+            $("#fixtureTo").val(_currentFixture);
+            //if (!data) return e.preventDefault() // stops modal from being shown
+        })
+
         function fnCreateCSVFile() {
             $.ajax({
                 url: "/Result/CreateCSVFile",
@@ -1143,7 +1162,7 @@
                                 "," + t["TJ"] + "," + t["TG"] + "," + t["TE"] + "," + t["TP"] + "," + t["TGF"] + "," + t["TGC"] + "," + t["TDG"] + "," + t["TPts"] + "," + t["Pos"] + ",\n";
             });
             console.log("Tabla de posiones actual.\n" + text)
-            //return text;
+            $("#requestFixtures").modal("hide");
         }
 
         function fnLoadFixture() {
@@ -1283,27 +1302,19 @@
             }
         }
 
-        //$.ajax({
-        //    url: 'http://api.football-data.org/v2/teams/5/matches?status=FINISHED&limit=1',
-        //    headers: {
-        //        'X-Auth-Token': 'bb2761bad403458489f1f9425d897f16',
-        //        'Access-Control-Allow-Methods': "GET",
-        //        'Access-Control-Allow-Origin': "*",
-        //        'Access-Control-Allow-Headers': "x-auth-token, x-response-control",
-        //        'Content-Length': 0,
-        //        'Content-Type': 'text/plain',
-        //    },
-        //    //method: "GET",
-        //    //contentType: "application/json; charset=utf-8",
-        //    //crossDomain: true,
-        //    success: function (result) {
-        //        // process result
-        //        console.log(result);
-        //    },
-        //    error: function (e) {
-        //        // log error in browser
-        //        console.log(e.message);
-        //    }
-        //});
+        function fnLoadApi() {
+            var _url = "https://api.football-data.org/v2/competitions"
+            $.ajax({
+                type: "GET",
+                url: _url,
+                headers: { "X-Auth-Token": "a022e95130904762a260dd800dad83bd" },
+                success: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+        
+        //'X-Auth-Token': 'bb2761bad403458489f1f9425d897f16',
+        
     </script>
 }

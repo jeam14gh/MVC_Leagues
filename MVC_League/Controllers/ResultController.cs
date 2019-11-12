@@ -182,5 +182,10 @@ namespace MVC_League.Controllers
                 return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest, Error.Message);
             }
         }
+
+        public ActionResult Competitions()
+        {
+            return View();
+        }
     }
 }

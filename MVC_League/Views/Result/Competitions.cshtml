@@ -1,0 +1,222 @@
+﻿
+@{
+    ViewBag.Title = "Competitions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var model = new SelectList(
+            new List<SelectListItem>{
+                new SelectListItem { Text = "La Liga", Value= "2014"},
+                new SelectListItem { Text = "Bundesliga", Value= "2002"},
+                new SelectListItem { Text = "Serie A", Value= "2019"},
+                new SelectListItem { Text = "Ligue 1", Value= "2015"},
+                new SelectListItem { Text = "Premier League", Value= "2021"},
+        }, "Value", "Text");
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4 text-center">
+            <h1>API</h1>
+        </div>
+        <div class="col-md-6">
+            <form>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Liga:</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownList("ddlLeague",model, "Seleccione", new { @class = "form-control", onchange = "OnSelectedItem(this)" })
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6 hidden" id="divResults">
+            <div class="col-md-12 nav navbar-btn">
+                <button style="margin-left:10px" type="button" id="btnGenerateTable" data-toggle="tooltip" title="Actualizar Tabla de Posiciones" class="btn btn-success btn-sm navbar-right" onclick="fnGenerateTable()">
+                    <i class="glyphicon glyphicon-refresh"></i>  <i class="glyphicon glyphicon-list-alt"></i>
+                </button>
+                <button style="margin-left:10px" type="button" id="btnAddNextFixtureOnly" class="btn btn-success btn-sm navbar-right" onclick="fnAddNextFixtureOnly()">
+                    Guardar como fecha próxima
+                </button>
+            </div>
+            <div class="col-md-12 table-responsive">
+                <table id="tableResults" class="table table-bordered table-hover">
+                    <thead class="label-default">
+                        <tr>
+                            <th colspan="6" class="text-right" id="thInfo"></th>
+                        </tr>
+                        <tr>
+                            <th> Local </th>
+                            <th colspan="2" class="text-center"> Resultado </th>
+                            <th class="text-right"> Visitante </th>
+                            <th hidden> LeagueId </th>
+                            <th>  </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row hidden" id="divPositions">
+        <div class="col-lg-12 nav navbar-btn">
+            <button style="margin-left:10px" type="button" id="btnSaveTable" data-toggle="tooltip" title="Guadar Tabla de Posiciones" class="btn btn-success btn-sm navbar-right hidden" onclick="fnSaveTable(this)">
+                <i class="glyphicon glyphicon-floppy-disk"></i>
+            </button>
+            <button style="margin-left:10px" type="button" data-toggle="modal" class="btn btn-success btn-sm navbar-right" data-target="#requestFixtures">
+                <i class="glyphicon glyphicon-file"></i> Generar CSV
+            </button>
+        </div>
+        <div class="col-lg-12">
+            <div class="table-responsive">
+                <table id="tblPositions" class="table table-bordered table-hover">
+                    <thead class="label-default">
+                        <tr>
+                            <th colspan="2" class="text-center">  </th>
+                            <th colspan="8" class="text-center"> Local </th>
+                            <th colspan="8" class="text-center"> Visitante </th>
+                            <th colspan="8" class="text-center"> Total </th>
+                        </tr>
+                        <tr>
+                            <th class="hidden">TeamId</th>
+                            <th class="text-center"> Pos </th>
+                            <th> Equipo </th>
+                            @* ::: LOCAL ::: *@
+                            <th class="text-center"> J </th>
+                            <th class="text-center"> G </th>
+                            <th class="text-center"> E </th>
+                            <th class="text-center"> P </th>
+                            <th class="text-center"> GF </th>
+                            <th class="text-center"> GC </th>
+                            <th class="text-center"> DG </th>
+                            <th class="text-center"> Pts. </th>
+                            @* ::: VISITANTE ::: *@
+                            <th class="text-center"> J </th>
+                            <th class="text-center"> G </th>
+                            <th class="text-center"> E </th>
+                            <th class="text-center"> P </th>
+                            <th class="text-center"> GF </th>
+                            <th class="text-center"> GC </th>
+                            <th class="text-center"> DG </th>
+                            <th class="text-center"> Pts. </th>
+                            @* ::: TOTAL ::: *@
+                            <th class="text-center"> J </th>
+                            <th class="text-center"> G </th>
+                            <th class="text-center"> E </th>
+                            <th class="text-center"> P </th>
+                            <th class="text-center"> GF </th>
+                            <th class="text-center"> GC </th>
+                            <th class="text-center"> DG </th>
+                            <th class="text-center"> Pts. </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section applicationScripts {
+    <script type="text/javascript">
+        var
+            _dataPositionsUpdated = null,
+            _nextFixture = 1,
+            _positions = [],
+            _positionsCache = [],
+            _leagueId = null,
+            _textCSV = "",
+            _positionsByFixture = [],
+            _lastFixtureRegistered,
+            _fixtureLoaded = false,
+            _currentFixture;
+
+        function OnSelectedItem(e) {
+            //var season = $("#season").val();
+            $('#divPositions').addClass("hidden");
+            $("#divPositions tbody").children().remove();
+            _positions = [];
+
+            //e.preventDefault();
+            if (e.value != "") {
+                var league = _leaguesApi.find(f=>f.id == e.value),
+                    code = league.code,
+                    endDate = league.currentSeason.endDate,
+                    startDate = league.currentSeason.startDate,
+                    url = 'http://api.football-data.org/v2/competitions/' + code + '/standings';
+
+                //var _url = "https://api.football-data.org/v2/competitions/"+code+"/matches?dateFrom="+startDate+"&dateTo="+endDate;
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    headers: { "X-Auth-Token": "a022e95130904762a260dd800dad83bd" },
+                    success: function (response) {
+                        var
+                            total = response.standings.find(f=>f.type == "TOTAL").table,
+                            home = response.standings.find(f=>f.type == "HOME").table,
+                            away = response.standings.find(f=>f.type == "AWAY").table;
+
+                        total.map(m=> {
+                            var
+                                local = home.find(f=>f.team.id == m.team.id),
+                                visitor = away.find(f=>f.team.id == m.team.id);
+
+                            _positions.push(
+                                {
+                                    LeagueId: league.id, Name: m.team.name, TeamId: m.team.id,
+                                    LJ: local.playedGames, LG: local.won, LE: local.draw, LP: local.lost, LGF: local.goalsFor, LGC: local.goalsAgainst, LDG: local.goalDifference, LPts: local.points,
+                                    VJ: visitor.playedGames, VG: visitor.won, VE: visitor.draw, VP: visitor.lost, VGF: visitor.goalsFor, VGC: visitor.goalsAgainst, VDG: visitor.goalDifference, VPts: visitor.points,
+                                    TJ: m.playedGames, TG: m.won, TE: m.draw, TP: m.lost, TGF: m.goalsFor, TGC: m.goalsAgainst, TDG: m.goalDifference, TPts: m.points, Pos: m.position
+                                }
+                            );
+                        });
+                        LoadTablePositions(_positions);
+                        $('#divPositions').removeClass("hidden");
+                    }
+                });
+
+            }
+            else {
+                $('#divPositions').addClass("hidden");
+            }
+        }
+
+        // Agregamos dinamicamente los campos en la tabla de posiciones
+        function LoadTablePositions(positions) {
+            // Limpiamos primero la tabla
+            //$('#tblPositions tbody').children().remove();
+
+            $.each(positions, (key, item) => {
+                var tr = "<tr>" +
+                            "<td class='hidden'>" + item.TeamId + "</td>" + // Id del equipo
+                            "<td style = 'background-color: #3333;' class='text-center'><b>" + item.Pos + "</b></td>" + // Pos
+                            "<td style = 'background-color: #3333;'><b>" + item.Name + "</b></td>" + // Nombre del equipo
+                            "<td class='text-center'>" + item.LJ + "</td>" +
+                            "<td class='text-center'>" + item.LG + "</td>" +
+                            "<td class='text-center'>" + item.LE + "</td>" +
+                            "<td class='text-center'>" + item.LP + "</td>" +
+                            "<td class='text-center'>" + item.LGF + "</td>" +
+                            "<td class='text-center'>" + item.LGC + "</td>" +
+                            "<td class='text-center'>" + item.LDG + "</td>" +
+                            "<td class='text-center'>" + item.LPts + "</td>" +
+                            "<td class='text-center'>" + item.VJ + "</td>" +
+                            "<td class='text-center'>" + item.VG + "</td>" +
+                            "<td class='text-center'>" + item.VE + "</td>" +
+                            "<td class='text-center'>" + item.VP + "</td>" +
+                            "<td class='text-center'>" + item.VGF + "</td>" +
+                            "<td class='text-center'>" + item.VGC + "</td>" +
+                            "<td class='text-center'>" + item.VDG + "</td>" +
+                            "<td class='text-center'>" + item.VPts + "</td>" +
+                            "<td class='text-center'>" + item.TJ + "</td>" +
+                            "<td class='text-center'>" + item.TG + "</td>" +
+                            "<td class='text-center'>" + item.TE + "</td>" +
+                            "<td class='text-center'>" + item.TP + "</td>" +
+                            "<td class='text-center'>" + item.TGF + "</td>" +
+                            "<td class='text-center'>" + item.TGC + "</td>" +
+                            "<td class='text-center'>" + item.TDG + "</td>" +
+                            "<td class='text-center'>" + item.TPts + "</td>" +
+                        "</tr>"
+
+                $('#tblPositions tbody').append(tr);
+            });
+        }
+    </script>
+}
+

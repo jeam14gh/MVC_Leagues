@@ -25,6 +25,7 @@
                     <li>@Html.ActionLink("Equipos", "Index", "Team")</li>
                     <li>@Html.ActionLink("Resultados", "Create", "Result")</li>
                     <li>@Html.ActionLink("Fecha Jugadas", "Fixtures", "Result")</li>
+                    <li>@Html.ActionLink("API", "Competitions", "Result")</li>
                 </ul>
             </div>
         </div>
@@ -46,7 +47,10 @@
             _season = null,
             _leagueId = null,
             _teams,
-            _leagues;
+            _leagues,
+            // Serie A, Bundesliga, Premier League, La Liga, Ligue 1
+            _competitionsId = [2019, 2002, 2021, 2014, 2015],
+            _leaguesApi;
 
         $.getJSON("/Home/GetLeaguesTeams").
         done((data) => {
@@ -55,6 +59,18 @@
         }).fail((jqxhr, textStatus, error) => {
             var err = textStatus + ", " + error;
             alert("Error al obtener equipos y ligas" + err);
+        });
+
+        $.ajax({
+            type: "GET",
+            url: "http://api.football-data.org/v2/competitions",
+            headers: { "X-Auth-Token": "a022e95130904762a260dd800dad83bd" },
+            success: function (data) {
+                _leaguesApi = data.competitions.filter(f=> {
+                    if (_competitionsId.includes(f.id))
+                        return f;
+                });
+            }
         });
 
         $(document).ready(function () {
