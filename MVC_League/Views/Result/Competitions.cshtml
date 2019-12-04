@@ -140,7 +140,12 @@
                     code = league.code,
                     endDate = league.currentSeason.endDate,
                     startDate = league.currentSeason.startDate,
+                    currentMatchday = league.currentSeason.currentMatchday,
+                    lastTenMatches = currentMatchday - 10,
                     url = 'http://api.football-data.org/v2/competitions/' + code + '/standings';
+
+                
+                
 
                 //var _url = "https://api.football-data.org/v2/competitions/"+code+"/matches?dateFrom="+startDate+"&dateTo="+endDate;
                 $.ajax({
@@ -169,8 +174,10 @@
                         });
                         LoadTablePositions(_positions);
                         $('#divPositions').removeClass("hidden");
+                        GetMatchdayByCompetition(code, currentMatchday, lastTenMatches);
                     }
                 });
+
 
             }
             else {
@@ -215,6 +222,26 @@
                         "</tr>"
 
                 $('#tblPositions tbody').append(tr);
+            });
+        }
+
+        function GetMatchdayByCompetition(code, currentMatchday, lastTenMatches) {
+            var
+                index = (_positions.length / 2) * currentMatchday;
+
+            $.ajax({
+                type: "GET",
+                url: "https://api.football-data.org/v2/competitions/" + code + "/matches",   //,status=FINISHED",
+                headers: { "X-Auth-Token": "a022e95130904762a260dd800dad83bd" },
+                success: function (response) {
+                    var matches = response.matches.slice(0, index);
+                    //response.map(m=> {
+                    //    if (m) {
+
+                    //    }
+                    //});
+                    console.log(matches);
+                }
             });
         }
     </script>
