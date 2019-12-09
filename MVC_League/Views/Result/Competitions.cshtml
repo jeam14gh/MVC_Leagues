@@ -110,7 +110,23 @@
                     <tbody></tbody>
                 </table>
             </div>
-        </div>
+        </div>   
+        <div class="col-lg-12">
+            <div class="table-responsive">
+                <table id="tblPredictions" class="table table-bordered table-hover">
+                    <thead class="label-default">
+                        <tr>
+                            <th class="text-center"> Local </th>
+                            <th class="text-center">  </th>
+                            <th class="text-center">  </th>
+                            <th class="text-center">  </th>
+                            <th class="text-center"> Visitante </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>     
     </div>
 </div>
 
@@ -126,6 +142,7 @@
             _positionsByFixture = [],
             _lastFixtureRegistered,
             _fixtureLoaded = false,
+            _teamsApi= [],
             _currentFixture;
 
         function OnSelectedItem(e) {
@@ -162,6 +179,8 @@
                             var
                                 local = home.find(f=>f.team.id == m.team.id),
                                 visitor = away.find(f=>f.team.id == m.team.id);
+
+                            _teamsApi.push({ id: m.team.id, name: m.team.name , goals: 0 });
 
                             _positions.push(
                                 {
@@ -234,13 +253,44 @@
                 url: "https://api.football-data.org/v2/competitions/" + code + "/matches",   //,status=FINISHED",
                 headers: { "X-Auth-Token": "a022e95130904762a260dd800dad83bd" },
                 success: function (response) {
-                    var matches = response.matches.slice(0, index);
-                    //response.map(m=> {
-                    //    if (m) {
+                    var
+                        matches = response.matches.slice(0, index),
+                        ateam, hteam,
+                        currentFixture= [],
+                        matchesByTeam;
 
-                    //    }
+                    matches.map(m=> {
+                        if (m.matchday != currentMatchday) {
+                            ateam = _teamsApi.find(f => f.id == m.awayTeam.id);
+                            ateam.goals += m.score.fullTime.awayTeam;
+
+                            hteam = _teamsApi.find(f => f.id == m.homeTeam.id);
+                            hteam.goals += m.score.fullTime.homeTeam;
+                        }
+                        else {
+                            currentFixture.push({
+                                local: m.homeTeam.name,
+                                localPercentage: "L%",
+                                prediction: "NA",
+                                visitorPercentage: "V%",
+                                visitor: m.awayTeam.name
+                            });
+                        }
+                    });
+                    console.log(_teamsApi);
+                    console.log(currentFixture);
+                    //$.each(positions, (key, item) => {
+                    //    var tr = "<tr>" +
+                    //                "<td class='hidden'>" + item.TeamId + "</td>" + // Id del equipo
+                    //                "<td style = 'background-color: #3333;' class='text-center'><b>" + item.Pos + "</b></td>" + // Pos
+                    //                "<td style = 'background-color: #3333;'><b>" + item.Name + "</b></td>" + // Nombre del equipo
+                    //                "<td class='text-center'>" + item.LJ + "</td>" +
+                    //                "<td class='text-center'>" + item.LG + "</td>" +
+                    //                "<td class='text-center'>" + item.LE + "</td>" +
+                    //            "</tr>"
+
+                    //    $('#tblPredictions tbody').append(tr);
                     //});
-                    console.log(matches);
                 }
             });
         }
