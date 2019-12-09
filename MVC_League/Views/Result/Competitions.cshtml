@@ -143,7 +143,8 @@
             _lastFixtureRegistered,
             _fixtureLoaded = false,
             _teamsApi= [],
-            _currentFixture;
+            _currentFixture,
+            _nLastMatches= 10;
 
         function OnSelectedItem(e) {
             //var season = $("#season").val();
@@ -158,7 +159,7 @@
                     endDate = league.currentSeason.endDate,
                     startDate = league.currentSeason.startDate,
                     currentMatchday = league.currentSeason.currentMatchday,
-                    lastTenMatches = currentMatchday - 10,
+                    fromMatchday = currentMatchday - _nLastMatches,
                     url = 'http://api.football-data.org/v2/competitions/' + code + '/standings';
 
                 
@@ -180,7 +181,7 @@
                                 local = home.find(f=>f.team.id == m.team.id),
                                 visitor = away.find(f=>f.team.id == m.team.id);
 
-                            _teamsApi.push({ id: m.team.id, name: m.team.name , goals: 0 });
+                            _teamsApi.push({ id: m.team.id, name: m.team.name, goalsFor: 0, goalsAgainst: 0 });
 
                             _positions.push(
                                 {
@@ -193,7 +194,7 @@
                         });
                         LoadTablePositions(_positions);
                         $('#divPositions').removeClass("hidden");
-                        GetMatchdayByCompetition(code, currentMatchday, lastTenMatches);
+                        GetMatchdayByCompetition(code, currentMatchday, fromMatchday);
                     }
                 });
 
@@ -244,7 +245,7 @@
             });
         }
 
-        function GetMatchdayByCompetition(code, currentMatchday, lastTenMatches) {
+        function GetMatchdayByCompetition(code, currentMatchday, fromMatchday) {
             var
                 index = (_positions.length / 2) * currentMatchday;
 
@@ -260,23 +261,46 @@
                         matchesByTeam;
 
                     matches.map(m=> {
-                        if (m.matchday != currentMatchday) {
-                            ateam = _teamsApi.find(f => f.id == m.awayTeam.id);
-                            ateam.goals += m.score.fullTime.awayTeam;
+                        // Sólo obtendrá los ultimos 10 partidos incluyendo la proxima fecha
+                        if (m.matchday >= fromMatchday) {
+                            if (m.matchday != currentMatchday) {
+                                hteam = _teamsApi.find(f => f.id == m.homeTeam.id);
+                                hteam.goalsFor += m.score.fullTime.homeTeam;
+                                hteam.goalsAgainst += m.score.fullTime.awayTeam;
 
-                            hteam = _teamsApi.find(f => f.id == m.homeTeam.id);
-                            hteam.goals += m.score.fullTime.homeTeam;
-                        }
-                        else {
-                            currentFixture.push({
-                                local: m.homeTeam.name,
-                                localPercentage: "L%",
-                                prediction: "NA",
-                                visitorPercentage: "V%",
-                                visitor: m.awayTeam.name
-                            });
+                                ateam = _teamsApi.find(f => f.id == m.awayTeam.id);
+                                ateam.goalsFor += m.score.fullTime.awayTeam;
+                                ateam.goalsAgainst += m.score.fullTime.homeTeam;
+                            }
+                            else {
+                                currentFixture.push({
+                                    idLocal: m.homeTeam.id,
+                                    localName: m.homeTeam.name,
+                                    localPercentage: 0,
+                                    prediction: "NA",
+                                    visitorPercentage: 0,
+                                    idVisitor: m.awayTeam.id,
+                                    visitorName: m.awayTeam.name,
+                                });
+                            }
                         }
                     });
+
+                    currentFixture.map(cf=> {
+                        var local = _teamsApi.find(t=>t.id == cf.idLocal),
+                            visitor = _teamsApi.find(t=>t.id == cf.idVisitor);
+
+                        cf.localPercentage = ((local.goalsFor / _nLastMatches) * (visitor.goalsAgainst / _nLastMatches)).toFixed(2);
+                        cf.visitorPercentage = ((visitor.goalsFor / _nLastMatches) * (local.goalsAgainst / _nLastMatches)).toFixed(2);
+
+                        if (cf.localPercentage >= 1.3 && cf.visitorPercentage >= 1.3) {
+                            cf.prediction = "SI";
+                        }
+                        else if (cf.localPercentage >= 1.3 && cf.visitorPercentage >= 1.3) {
+                            cf.prediction = "SI";
+                        }
+
+                    })
                     console.log(_teamsApi);
                     console.log(currentFixture);
                     //$.each(positions, (key, item) => {
