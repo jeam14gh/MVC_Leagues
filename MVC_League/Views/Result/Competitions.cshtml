@@ -296,25 +296,29 @@
                         if (cf.localPercentage >= 1.3 && cf.visitorPercentage >= 1.3) {
                             cf.prediction = "SI";
                         }
-                        else if (cf.localPercentage >= 1.3 && cf.visitorPercentage >= 1.3) {
-                            cf.prediction = "SI";
+                        else {
+                            if ((cf.localPercentage < 0.7 && cf.visitorPercentage >= 1.3) || (cf.visitorPercentage < 0.7 && cf.localPercentage >= 1.3)) {
+                                cf.prediction = "NO";
+                            }
+                            else if (cf.localPercentage > 0.7 || cf.visitorPercentage > 0.7) {
+                                cf.prediction = "MR";
+                            }
                         }
 
                     })
                     console.log(_teamsApi);
                     console.log(currentFixture);
-                    //$.each(positions, (key, item) => {
-                    //    var tr = "<tr>" +
-                    //                "<td class='hidden'>" + item.TeamId + "</td>" + // Id del equipo
-                    //                "<td style = 'background-color: #3333;' class='text-center'><b>" + item.Pos + "</b></td>" + // Pos
-                    //                "<td style = 'background-color: #3333;'><b>" + item.Name + "</b></td>" + // Nombre del equipo
-                    //                "<td class='text-center'>" + item.LJ + "</td>" +
-                    //                "<td class='text-center'>" + item.LG + "</td>" +
-                    //                "<td class='text-center'>" + item.LE + "</td>" +
-                    //            "</tr>"
+                    currentFixture.find(cf=>{
+                        var tr = "<tr>" +
+                                    "<td class='text-center'>" + cf.localName + "</td>" + 
+                                    "<td class='text-center'>" + cf.localPercentage + "</td>" + 
+                                    "<td class='text-center'>" + cf.prediction + "</td>" + 
+                                    "<td class='text-center'>" + cf.visitorPercentage + "</td>" +
+                                    "<td class='text-center'>" + cf.visitorName + "</td>" +
+                                "</tr>"
 
-                    //    $('#tblPredictions tbody').append(tr);
-                    //});
+                        $('#tblPredictions tbody').append(tr);
+                    });
                 }
             });
         }
