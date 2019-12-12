@@ -142,9 +142,10 @@
             _positionsByFixture = [],
             _lastFixtureRegistered,
             _fixtureLoaded = false,
-            _teamsApi= [],
+            _teamsApi = [],
             _currentFixture,
-            _nLastMatches= 10;
+            _nLastMatches = 10,
+            matches;
 
         function OnSelectedItem(e) {
             //var season = $("#season").val();
@@ -254,23 +255,70 @@
                 url: "https://api.football-data.org/v2/competitions/" + code + "/matches",   //,status=FINISHED",
                 headers: { "X-Auth-Token": "a022e95130904762a260dd800dad83bd" },
                 success: function (response) {
-                    var
-                        matches = response.matches.slice(0, index),
-                        ateam, hteam,
-                        currentFixture= [],
-                        matchesByTeam;
+                    matches = response.matches.slice(0, index);
+                    var ateam, hteam,
+                        currentFixture = [],
+                        matchesByTeam,
+                        beforeMatch = fromMatchday;
 
                     matches.map(m=> {
                         // Sólo obtendrá los ultimos 10 partidos incluyendo la proxima fecha
                         if (m.matchday >= fromMatchday) {
                             if (m.matchday != currentMatchday) {
                                 hteam = _teamsApi.find(f => f.id == m.homeTeam.id);
-                                hteam.goalsFor += m.score.fullTime.homeTeam;
-                                hteam.goalsAgainst += m.score.fullTime.awayTeam;
-
                                 ateam = _teamsApi.find(f => f.id == m.awayTeam.id);
-                                ateam.goalsFor += m.score.fullTime.awayTeam;
-                                ateam.goalsAgainst += m.score.fullTime.homeTeam;
+
+                                if (m.status == "SCHEDULED") {
+                                    console.log(m.matchday + " - " + m.homeTeam.name + " VS " + m.awayTeam.name);
+                                    beforeMatch -= 1;
+                                    var localmatch = matches.find(f=> f.matchday == beforeMatch && (f.homeTeam.id == m.homeTeam.id || f.awayTeam.id == m.homeTeam.id)),
+                                        visitormatch = matches.find(f=> f.matchday == beforeMatch && (f.awayTeam.id == m.awayTeam.id || f.homeTeam.id == m.awayTeam.id));
+
+                                    if (localmatch !== undefined & visitormatch !== undefined) {
+                                        var i = 0,
+                                            locality = (m.homeTeam.id == localmatch.homeTeam.id) ? "homeTeam" : "awayTeam",
+
+                                            isLocal = true;
+
+                                        while (i <= 1) {
+                                            if (isLocal) {
+                                                //hteam = _teamsApi.find(f => f.id == m.homeTeam.id);
+                                                if (locality == "homeTeam") {
+                                                    hteam.goalsFor += localmatch.score.fullTime.homeTeam;
+                                                    hteam.goalsAgainst += localmatch.score.fullTime.awayTeam;
+                                                }
+                                                else {
+                                                    hteam.goalsFor += localmatch.score.fullTime.awayTeam;
+                                                    hteam.goalsAgainst += localmatch.score.fullTime.homeTeam;
+                                                }
+                                            }
+                                            else {
+                                                //ateam = _teamsApi.find(f => f.id == m.awayTeam.id);
+                                                if (locality == "awayTeam") {
+                                                    ateam.goalsFor += visitormatch.score.fullTime.awayTeam;
+                                                    ateam.goalsAgainst += visitormatch.score.fullTime.homeTeam;
+                                                }
+                                                else {
+                                                    ateam.goalsFor += visitormatch.score.fullTime.homeTeam;
+                                                    ateam.goalsAgainst += visitormatch.score.fullTime.awayTeam;
+                                                }
+                                            }
+
+                                            i++;
+                                            locality = (m.awayTeam.id == visitormatch.homeTeam.id) ? "homeTeam" : "awayTeam",
+                                            isLocal = false;
+                                        }
+                                    }
+                                }                                
+                                else { 
+                                    //hteam = _teamsApi.find(f => f.id == m.homeTeam.id);
+                                    hteam.goalsFor += m.score.fullTime.homeTeam;
+                                    hteam.goalsAgainst += m.score.fullTime.awayTeam;
+
+                                    //ateam = _teamsApi.find(f => f.id == m.awayTeam.id);
+                                    ateam.goalsFor += m.score.fullTime.awayTeam;
+                                    ateam.goalsAgainst += m.score.fullTime.homeTeam;
+                                }
                             }
                             else {
                                 currentFixture.push({
