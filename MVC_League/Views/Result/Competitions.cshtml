@@ -116,11 +116,13 @@
                 <table id="tblPredictions" class="table table-bordered table-hover">
                     <thead class="label-default">
                         <tr>
-                            <th class="text-center"> Local </th>
-                            <th class="text-center">  </th>
-                            <th class="text-center">  </th>
-                            <th class="text-center">  </th>
-                            <th class="text-center"> Visitante </th>
+                            <th class="text-center">Fecha</th>
+                            <th class="text-center">Local</th>
+                            <th class="text-center" colspan="2">Resultado</th>
+                            <th class="text-center">Visitante</th>
+                            <th class="text-center">PGL</th>
+                            <th class="text-center">AEM</th>
+                            <th class="text-center">PGV</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -152,6 +154,7 @@
             $('#divPositions').addClass("hidden");
             $("#divPositions tbody").children().remove();
             _positions = [];
+            _teamsApi = [];
 
             //e.preventDefault();
             if (e.value != "") {
@@ -255,6 +258,8 @@
                 url: "https://api.football-data.org/v2/competitions/" + code + "/matches",   //,status=FINISHED",
                 headers: { "X-Auth-Token": "a022e95130904762a260dd800dad83bd" },
                 success: function (response) {
+                    //Nota: Hacer el filter por matchdayday, tener en cuenta currentmatchday por si no se ha actualizado
+                    //response.matches.filter(f=>f.matchday <= currentMatchday) falta el orderby por matchday
                     matches = response.matches.slice(0, index);
                     var ateam, hteam,
                         currentFixture = [],
@@ -264,7 +269,7 @@
                     matches.map(m=> {
                         // Sólo obtendrá los ultimos 10 partidos incluyendo la proxima fecha
                         if (m.matchday >= fromMatchday) {
-                            if (m.matchday != currentMatchday) {
+                            if (m.matchday != currentMatchday) {// if (m.matchday != currentMatchday) {
                                 hteam = _teamsApi.find(f => f.id == m.homeTeam.id);
                                 ateam = _teamsApi.find(f => f.id == m.awayTeam.id);
 
@@ -275,61 +280,66 @@
                                         visitormatch = matches.find(f=> f.matchday == beforeMatch && (f.awayTeam.id == m.awayTeam.id || f.homeTeam.id == m.awayTeam.id));
 
                                     if (localmatch !== undefined & visitormatch !== undefined) {
-                                        var i = 0,
-                                            locality = (m.homeTeam.id == localmatch.homeTeam.id) ? "homeTeam" : "awayTeam",
 
-                                            isLocal = true;
+                                        UpdateScoreByTeam(localmatch, hteam, m.homeTeam.id);
+                                        UpdateScoreByTeam(visitormatch, ateam, m.awayTeam.id);
 
-                                        while (i <= 1) {
-                                            if (isLocal) {
-                                                //hteam = _teamsApi.find(f => f.id == m.homeTeam.id);
-                                                if (locality == "homeTeam") {
-                                                    hteam.goalsFor += localmatch.score.fullTime.homeTeam;
-                                                    hteam.goalsAgainst += localmatch.score.fullTime.awayTeam;
-                                                }
-                                                else {
-                                                    hteam.goalsFor += localmatch.score.fullTime.awayTeam;
-                                                    hteam.goalsAgainst += localmatch.score.fullTime.homeTeam;
-                                                }
-                                            }
-                                            else {
-                                                //ateam = _teamsApi.find(f => f.id == m.awayTeam.id);
-                                                if (locality == "awayTeam") {
-                                                    ateam.goalsFor += visitormatch.score.fullTime.awayTeam;
-                                                    ateam.goalsAgainst += visitormatch.score.fullTime.homeTeam;
-                                                }
-                                                else {
-                                                    ateam.goalsFor += visitormatch.score.fullTime.homeTeam;
-                                                    ateam.goalsAgainst += visitormatch.score.fullTime.awayTeam;
-                                                }
-                                            }
+                                        //var i = 0,
+                                        //    locality = (m.homeTeam.id == localmatch.homeTeam.id) ? "homeTeam" : "awayTeam",
 
-                                            i++;
-                                            locality = (m.awayTeam.id == visitormatch.homeTeam.id) ? "homeTeam" : "awayTeam",
-                                            isLocal = false;
-                                        }
+                                        //    isLocal = true;
+
+                                        //while (i <= 1) {
+                                        //    if (isLocal) {
+                                        //        if (locality == "homeTeam") {
+                                        //            hteam.goalsFor += localmatch.score.fullTime.homeTeam;
+                                        //            hteam.goalsAgainst += localmatch.score.fullTime.awayTeam;
+                                        //        }
+                                        //        else {
+                                        //            hteam.goalsFor += localmatch.score.fullTime.awayTeam;
+                                        //            hteam.goalsAgainst += localmatch.score.fullTime.homeTeam;
+                                        //        }
+                                        //    }
+                                        //    else {
+                                        //        if (locality == "awayTeam") {
+                                        //            ateam.goalsFor += visitormatch.score.fullTime.awayTeam;
+                                        //            ateam.goalsAgainst += visitormatch.score.fullTime.homeTeam;
+                                        //        }
+                                        //        else {
+                                        //            ateam.goalsFor += visitormatch.score.fullTime.homeTeam;
+                                        //            ateam.goalsAgainst += visitormatch.score.fullTime.awayTeam;
+                                        //        }
+                                        //    }
+
+                                        //    i++;
+                                        //    locality = (m.awayTeam.id == visitormatch.homeTeam.id) ? "homeTeam" : "awayTeam",
+                                        //    isLocal = false;
+                                        //}
                                     }
                                 }                                
-                                else { 
-                                    //hteam = _teamsApi.find(f => f.id == m.homeTeam.id);
-                                    hteam.goalsFor += m.score.fullTime.homeTeam;
-                                    hteam.goalsAgainst += m.score.fullTime.awayTeam;
+                                else {
+                                    UpdateScoreByTeam(m, hteam, m.homeTeam.id);
+                                    UpdateScoreByTeam(m, ateam, m.awayTeam.id);
 
-                                    //ateam = _teamsApi.find(f => f.id == m.awayTeam.id);
-                                    ateam.goalsFor += m.score.fullTime.awayTeam;
-                                    ateam.goalsAgainst += m.score.fullTime.homeTeam;
+                                    //hteam.goalsFor += m.score.fullTime.homeTeam;
+                                    //hteam.goalsAgainst += m.score.fullTime.awayTeam;
+
+                                    //ateam.goalsFor += m.score.fullTime.awayTeam;
+                                    //ateam.goalsAgainst += m.score.fullTime.homeTeam;
                                 }
                             }
                             else {
-                                currentFixture.push({
-                                    idLocal: m.homeTeam.id,
-                                    localName: m.homeTeam.name,
-                                    localPercentage: 0,
-                                    prediction: "NA",
-                                    visitorPercentage: 0,
-                                    idVisitor: m.awayTeam.id,
-                                    visitorName: m.awayTeam.name,
-                                });
+                                if (m.matchday == currentMatchday) {
+                                    currentFixture.push({
+                                        idLocal: m.homeTeam.id,
+                                        localName: m.homeTeam.name,
+                                        localPercentage: 0,
+                                        prediction: "NA",
+                                        visitorPercentage: 0,
+                                        idVisitor: m.awayTeam.id,
+                                        visitorName: m.awayTeam.name,
+                                    });
+                                }
                             }
                         }
                     });
@@ -358,11 +368,14 @@
                     console.log(currentFixture);
                     currentFixture.find(cf=>{
                         var tr = "<tr>" +
-                                    "<td class='text-center'>" + cf.localName + "</td>" + 
+                                    "<td class='text-center'>" + currentMatchday + "</td>" +
+                                    "<td class='text-center'>" + cf.localName + "</td>" +
+                                    "<td class='text-center'> </td>" + 
+                                    "<td class='text-center'> </td>" + 
+                                    "<td class='text-center'>" + cf.visitorName + "</td>" +
                                     "<td class='text-center'>" + cf.localPercentage + "</td>" + 
                                     "<td class='text-center'>" + cf.prediction + "</td>" + 
                                     "<td class='text-center'>" + cf.visitorPercentage + "</td>" +
-                                    "<td class='text-center'>" + cf.visitorName + "</td>" +
                                 "</tr>"
 
                         $('#tblPredictions tbody').append(tr);
@@ -370,6 +383,22 @@
                 }
             });
         }
+
+        function UpdateScoreByTeam(match, team, teamId) {
+            var
+                locality = (teamId == match.homeTeam.id) ? "homeTeam" : "awayTeam";
+
+            //hteam = _teamsApi.find(f => f.id == m.homeTeam.id);
+            if (locality == "homeTeam") {
+                team.goalsFor += match.score.fullTime.homeTeam;
+                team.goalsAgainst += match.score.fullTime.awayTeam;
+            }
+            else {
+                team.goalsFor += match.score.fullTime.awayTeam;
+                team.goalsAgainst += match.score.fullTime.homeTeam;
+            }                           
+        }
+
     </script>
 }
 
