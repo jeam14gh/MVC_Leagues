@@ -66,6 +66,10 @@
             url: "http://api.football-data.org/v2/competitions",
             headers: { "X-Auth-Token": "a022e95130904762a260dd800dad83bd" },
             success: function (data) {
+                // Ligas gratuitas ::: _leaguesApi = data.competitions.filter(f=>f.plan == "TIER_ONE");
+                //code=PPL, id=2017, Primeira Liga (PORTUGAL)
+                //code=DED, id=2003, Eredivisie (HOLANDA)
+                //code=BSA, id=2013, Série A (BRASIL)
                 _leaguesApi = data.competitions.filter(f=> {
                     if (_competitionsId.includes(f.id))
                         return f;
@@ -83,4 +87,4 @@
     <!--Scripts de la aplicacion-->
     @RenderSection("applicationScripts", required: false)
 </body>
-</html>
+</html> 

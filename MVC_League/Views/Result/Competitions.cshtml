@@ -260,11 +260,14 @@
                 success: function (response) {
                     //Nota: Hacer el filter por matchdayday, tener en cuenta currentmatchday por si no se ha actualizado
                     //response.matches.filter(f=>f.matchday <= currentMatchday) falta el orderby por matchday
-                    matches = response.matches.slice(0, index);
+                    matches = response.matches.filter(f=>f.matchday <= currentMatchday).
+                                sort((a, b) =>a.matchday - b.matchday);
+                    //matches = response.matches.slice(0, index);
                     var ateam, hteam,
                         currentFixture = [],
                         matchesByTeam,
-                        beforeMatch = fromMatchday;
+                        beforeMatch = fromMatchday,
+                        postponedMatches = "";
 
                     matches.map(m=> {
                         // Sólo obtendrá los ultimos 10 partidos incluyendo la proxima fecha
@@ -274,10 +277,11 @@
                                 ateam = _teamsApi.find(f => f.id == m.awayTeam.id);
 
                                 if (m.status == "SCHEDULED") {
-                                    console.log(m.matchday + " - " + m.homeTeam.name + " VS " + m.awayTeam.name);
-                                    beforeMatch -= 1;
-                                    var localmatch = matches.find(f=> f.matchday == beforeMatch && (f.homeTeam.id == m.homeTeam.id || f.awayTeam.id == m.homeTeam.id)),
-                                        visitormatch = matches.find(f=> f.matchday == beforeMatch && (f.awayTeam.id == m.awayTeam.id || f.homeTeam.id == m.awayTeam.id));
+                                    postponedMatches += "Fecha: " + m.matchday + " ::: " + m.homeTeam.name + " vs " + m.awayTeam.name + "\n";
+                                    //console.log("Fecha: " + m.matchday + " ::: " + m.homeTeam.name + " vs " + m.awayTeam.name);
+                                    //beforeMatch -= 1;
+                                    var localmatch = matches.find(f=> f.matchday == (beforeMatch - 1) && (f.homeTeam.id == m.homeTeam.id || f.awayTeam.id == m.homeTeam.id)),
+                                        visitormatch = matches.find(f=> f.matchday == (beforeMatch -1) && (f.awayTeam.id == m.awayTeam.id || f.homeTeam.id == m.awayTeam.id));
 
                                     if (localmatch !== undefined & visitormatch !== undefined) {
 
@@ -344,6 +348,8 @@
                         }
                     });
 
+                    console.log("beforeMatch: " + beforeMatch);
+
                     currentFixture.map(cf=> {
                         var local = _teamsApi.find(t=>t.id == cf.idLocal),
                             visitor = _teamsApi.find(t=>t.id == cf.idVisitor);
@@ -364,8 +370,7 @@
                         }
 
                     })
-                    console.log(_teamsApi);
-                    console.log(currentFixture);
+
                     currentFixture.find(cf=>{
                         var tr = "<tr>" +
                                     "<td class='text-center'>" + currentMatchday + "</td>" +
@@ -380,6 +385,12 @@
 
                         $('#tblPredictions tbody').append(tr);
                     });
+                    
+                    if (postponedMatches != "") {
+                        console.log(postponedMatches);
+                    }
+                    console.log(_teamsApi);
+                    console.log(currentFixture);
                 }
             });
         }
