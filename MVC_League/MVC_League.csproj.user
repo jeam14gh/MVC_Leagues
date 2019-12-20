@@ -25,7 +25,7 @@
           <SQLDebugging>False</SQLDebugging>
           <ExternalProgram>
           </ExternalProgram>
-          <StartExternalURL>http://localhost:51080/Result/Create</StartExternalURL>
+          <StartExternalURL>http://localhost:51080/Result/Competitions</StartExternalURL>
           <StartCmdLineArguments>
           </StartCmdLineArguments>
           <StartWorkingDirectory>
